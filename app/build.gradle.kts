@@ -10,6 +10,9 @@ val versionProps = Properties().apply {
     rootProject.file("version.properties").inputStream().use { load(it) }
 }
 
+val ciVersionCode: Int? = System.getenv("ISLAND_VERSION_CODE")?.toIntOrNull()
+val keystorePath: String? = System.getenv("KEYSTORE_PATH")
+
 android {
     namespace = "com.islandphone.app"
     compileSdk = 35
@@ -18,13 +21,27 @@ android {
         applicationId = "com.islandphone.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = versionProps.getProperty("VERSION_CODE").toInt()
+        versionCode = ciVersionCode ?: versionProps.getProperty("VERSION_CODE").toInt()
         versionName = versionProps.getProperty("VERSION_NAME")
+    }
+
+    signingConfigs {
+        create("release") {
+            if (keystorePath != null) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (keystorePath != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
