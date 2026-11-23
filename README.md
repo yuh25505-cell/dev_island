@@ -36,7 +36,7 @@
 Kotlin + Jetpack Compose + Android SDK；Navigation Compose；Room 保存结构化数据；DataStore 保存设置；文件系统保存媒体；Coroutines/Flow；OkHttp 网络与流式响应；WorkManager 可延续后台工作。AI Provider 适配层与提示词组装分离。Cloudflare 后端起步，服务端验证权限。
 
 ## 设计
-Apple Liquid Glass 官方资料作为视觉参考，Android 用原生 Compose 实现类似材质，玻璃优先用于导航、浮层、工具栏和交互控件，正文保持可读。模糊可关闭并有设备降级方案。主题支持跟随系统/固定日间/固定夜间。每个页面与弹窗支持原生返回手势。
+Apple Liquid Glass 官方资料作为视觉参考，Android 用原生 Compose 实现类似材质，玻璃优先用于导航、浮层、工具栏和交互控件，正文保持可读。模糊可关闭并有设备降级方案。当前主题暂跟随系统；固定日间/夜间将在系统UI任务实现。每个页面与弹窗支持原生返回手势。
 
 启动动画：雨滴落在屏幕中心，水波晕开，显示「请让这座孤岛因你们而拥有属于它的故事」，然后进入主屏。
 

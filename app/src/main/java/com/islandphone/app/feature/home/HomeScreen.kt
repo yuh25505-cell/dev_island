@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.isSystemInDarkTheme
 import com.islandphone.app.core.design.GlassSurface
 
 private data class HomeApp(val title: String, val glyph: String, val color: Color)
@@ -31,23 +32,27 @@ private val appList = listOf(
 
 @Composable
 fun HomeScreen() {
-    Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(Color(0xFFB9CBD9),Color(0xFFDAD8D0),Color(0xFFB8C5BC))))) {
+    val dark = isSystemInDarkTheme()
+    val ink = if (dark) Color(0xFFEAF0F5) else Color(0xFF293A48)
+    val subdued = if (dark) Color(0xFFCAD5DE) else Color(0xFF334A5B)
+    val wallpaper = if (dark) listOf(Color(0xFF1C2834),Color(0xFF30343A),Color(0xFF26352F)) else listOf(Color(0xFFB9CBD9),Color(0xFFDAD8D0),Color(0xFFB8C5BC))
+    Box(Modifier.fillMaxSize().background(Brush.linearGradient(wallpaper))) {
         Column(Modifier.fillMaxSize().padding(horizontal=23.dp, vertical=26.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceBetween, verticalAlignment=Alignment.CenterVertically) {
                 Column {
-                    Text("星期一 · 11月24日", color=Color(0xFF263746).copy(alpha=.72f), fontSize=12.sp)
-                    Text("00:09", color=Color(0xFF1E2B38), fontSize=38.sp, fontWeight=FontWeight.Light)
+                    Text("星期一 · 11月24日", color=ink.copy(alpha=.72f), fontSize=12.sp)
+                    Text("00:09", color=ink, fontSize=38.sp, fontWeight=FontWeight.Light)
                 }
                 GlassSurface(Modifier.size(52.dp)) {
-                    Box(Modifier.fillMaxSize(), contentAlignment=Alignment.Center) { Text("岛", color=Color(0xFF304454), fontSize=21.sp) }
+                    Box(Modifier.fillMaxSize(), contentAlignment=Alignment.Center) { Text("岛", color=ink, fontSize=21.sp) }
                 }
             }
             Spacer(Modifier.height(20.dp))
             GlassSurface(Modifier.fillMaxWidth().height(108.dp)) {
                 Column(Modifier.fillMaxSize().padding(17.dp), verticalArrangement=Arrangement.Center) {
-                    Text("今天的岛屿", color=Color(0xFF273846), fontSize=15.sp, fontWeight=FontWeight.Medium)
+                    Text("今天的岛屿", color=ink, fontSize=15.sp, fontWeight=FontWeight.Medium)
                     Spacer(Modifier.height(6.dp))
-                    Text("生活正在慢慢发生。", color=Color(0xFF334A5B), fontSize=13.sp)
+                    Text("生活正在慢慢发生。", color=subdued, fontSize=13.sp)
                 }
             }
             Spacer(Modifier.height(22.dp))
@@ -60,7 +65,7 @@ fun HomeScreen() {
                             contentAlignment=Alignment.Center) {
                             Text(app.glyph, color=Color.White, fontSize=24.sp)
                         }
-                        Text(app.title, color=Color(0xFF293A48), fontSize=11.sp)
+                        Text(app.title, color=ink, fontSize=11.sp)
                     }
                 }
             }
@@ -68,7 +73,7 @@ fun HomeScreen() {
                 Row(Modifier.fillMaxSize().padding(horizontal=18.dp), horizontalArrangement=Arrangement.SpaceEvenly, verticalAlignment=Alignment.CenterVertically) {
                     listOf("☎","✉","♫","⚙").forEach { glyph ->
                         Box(Modifier.size(46.dp).clip(CircleShape).background(Color.White.copy(alpha=.25f)), contentAlignment=Alignment.Center) {
-                            Text(glyph, color=Color(0xFF304353), fontSize=21.sp)
+                            Text(glyph, color=ink, fontSize=21.sp)
                         }
                     }
                 }
