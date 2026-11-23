@@ -43,4 +43,4 @@ Apple Liquid Glass 官方资料作为视觉参考，Android 用原生 Compose �
 ## 开发规则
 开工先读 CLAUDE.md、README、DEVELOPMENT_PLAN 和现有代码。计划按序一次只做一个任务。新增内容支持编辑/删除，功能可关闭/撤销。代码按 UI、数据、网络、AI 职责分层；改动后构建并检查已有功能，更新版本。签名文件与密钥只放 GitHub Secrets，不提交仓库。
 
-当前版本：0.1.0（工程与启动/主屏初版）
+当前版本：0.1.1（工程与启动/主屏初版；修复 Gradle 根构建脚本语法）
