@@ -11,7 +11,7 @@
 | 状态栏、刘海屏 | iOS Layout | WindowInsets、Edge-to-edge、Display Cutout |
 | 日夜间与手动主题 | Dark Mode、Color | Compose 自定义 Theme + DataStore 保存用户选择 |
 | 动画 | Motion、WWDC | Compose Animation、AnimatedVisibility、Shared Element |
-| 安装包 | — | Gradle、APK Signing、APK Analyzer |
+| 安装包（只自己安装，不上架） | — | Gradle、APK Analyzer |
 
 ## 必须遵守的实现边界
 - Apple 的 SwiftUI / UIKit / WidgetKit 不能直接编译进 Android APK。

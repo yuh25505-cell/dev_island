@@ -7,9 +7,11 @@
 
 它不是网页开发资料，也不是 WebView 套壳教程。
 
+岛屿机的整体默认基础 UI（配色、颜色、字体、间距、圆角、材质、动效、交互），一律以 `01_Apple视觉参考` 里的 Apple 官方文档为准，做到最大程度一样。APK 只在自己手机上安装使用，不上架，所以资料里不再保留发布上架相关内容。
+
 ## 两套资料的分工
 - `01_Apple视觉参考`：只学习苹果的外观、布局、材质、图标、组件和交互规则。
-- `02-10_Android原生开发`：真正用来写 Android APK 的技术文档，重点是 Kotlin、Jetpack Compose、Android SDK、App Widgets、WindowInsets、动画、权限、测试和 APK 签名。
+- `02-10_Android原生开发`：真正用来写 Android APK 的技术文档，重点是 Kotlin、Jetpack Compose、Android SDK、App Widgets、WindowInsets、动画、权限和测试。
 
 ## 推荐技术路线
 - 语言：Kotlin
@@ -18,7 +20,7 @@
 - 桌面组件：App Widgets；Compose 风格可选 Glance
 - 动画：Compose Animation
 - 主题：AIRP 自己的主题系统，支持日间、夜间、跟随系统和手动切换
-- 构建：Gradle / Android Gradle Plugin，输出签名 APK
+- 构建：Gradle / Android Gradle Plugin，输出 APK 安装包（只自己安装，不上架）
 
 ## 真实桌面组件 vs AIRP 内部模拟桌面
 - 如果组件要放在手机真实桌面（Launcher）上：使用 Android App Widgets / Glance。
@@ -35,7 +37,7 @@ Android 端要用 Compose 绘制、图层、模糊、透明叠层、渐变高光
 2. 看 `01_Apple视觉参考`，建立视觉规范。
 3. 从 `02`、`03`、`04` 学会 Kotlin + Compose 和玻璃风格实现。
 4. 根据 AIRP 功能读 `05` 到 `09`。
-5. 最后按 `10` 做性能、测试和 APK 发布。
+5. 最后按 `10` 做性能和测试。
 
 ## 注意
 本包是官方资料链接索引，不是 Apple/Google 官方文档全文镜像。官方页面和 SDK 会更新，打开链接时以 Apple Developer、Android Developers 当前页面为准。
