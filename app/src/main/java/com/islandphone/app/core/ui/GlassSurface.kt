@@ -1,5 +1,6 @@
 package com.islandphone.app.core.ui
 
+import androidx.compose.runtime.Composable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.islandphone.app.core.theme.IslandTheme
 
+@Composable
 fun Modifier.glassSurface(
     shape: Shape,
     elevation: androidx.compose.ui.unit.Dp = 4.dp
