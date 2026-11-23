@@ -7,7 +7,7 @@
 - [x] T001 Android 原生骨架与 Actions
 - [x] T002 Splash 雨滴水波动画初版
 - [x] T003 Home 主屏初版、图标格、Dock
-- [ ] T004 Actions 构建验证、APK安装、签名Secret核对（已修复两项构建配置错误，等待 Actions 最终通过）
+- [ ] T004 Actions 构建验证、APK安装、签名Secret核对（已修复两项构建配置错误与 Splash 编译错误，等待 Actions 最终通过）
 - [ ] T005 版本管理与基础测试模板
 
 ## 1. 系统 UI
