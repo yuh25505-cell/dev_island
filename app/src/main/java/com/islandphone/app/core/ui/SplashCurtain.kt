@@ -51,6 +51,7 @@ internal fun SplashCurtain(time: SplashTime, modifier: Modifier = Modifier) {
         val w = size.width
         val h = size.height
         val hem = 16.dp.toPx()
+        val shadowOffset = 6.dp.toPx()
         val edge = (h + hem * 2f) * q
         val sway = sin(PI.toFloat() * q)
         fun hemY(x: Float): Float =
@@ -94,7 +95,7 @@ internal fun SplashCurtain(time: SplashTime, modifier: Modifier = Modifier) {
 
         val shadow = if (colors.isDark) Color.Black.copy(alpha = 0.35f)
         else colors.onBackground.copy(alpha = 0.10f)
-        withTransform({ translate(0f, 6.dp.toPx()) }) {
+        withTransform({ translate(0f, shadowOffset) }) {
             drawPath(
                 path = hemPath,
                 color = shadow,
