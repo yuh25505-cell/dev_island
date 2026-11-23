@@ -20,8 +20,8 @@ fun Modifier.glassClickable(
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.96f else 1f,
-        animationSpec = spring(dampingRatio = 0.6f, stiffness = 500f),
+        targetValue = if (pressed) 0.985f else 1f,
+        animationSpec = spring(dampingRatio = 0.78f, stiffness = 650f),
         label = "glassPress"
     )
     this

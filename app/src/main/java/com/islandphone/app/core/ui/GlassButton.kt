@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -28,26 +29,25 @@ fun GlassButton(
     enabled: Boolean = true
 ) {
     val colors = IslandTheme.colors
-    val shape = RoundedCornerShape(22.dp)
-    val fill = when (style) {
-        GlassButtonStyle.Primary -> colors.accent
-        GlassButtonStyle.Glass -> colors.glassFill
-        GlassButtonStyle.Danger -> colors.danger
-    }
+    val shape = RoundedCornerShape(24.dp)
     val textColor = when (style) {
         GlassButtonStyle.Primary -> colors.onAccent
         GlassButtonStyle.Glass -> colors.accent
         GlassButtonStyle.Danger -> Color.White
     }
-    val borderColor = if (style == GlassButtonStyle.Glass) colors.glassBorder else Color.Transparent
+
+    val surface = when (style) {
+        GlassButtonStyle.Glass -> modifier.glassSurface(shape, elevation = 2.dp)
+        GlassButtonStyle.Primary -> modifier
+            .clip(shape)
+            .background(Brush.verticalGradient(listOf(colors.accent, colors.accent.copy(alpha = 0.88f))))
+        GlassButtonStyle.Danger -> modifier.clip(shape).background(colors.danger)
+    }
 
     Box(
-        modifier = modifier
+        modifier = surface
             .alpha(if (enabled) 1f else 0.4f)
             .glassClickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .clip(shape)
-            .background(fill)
-            .border(1.dp, borderColor, shape)
             .padding(horizontal = 24.dp, vertical = 14.dp),
         contentAlignment = Alignment.Center
     ) {

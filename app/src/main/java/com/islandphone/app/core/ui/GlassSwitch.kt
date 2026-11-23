@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.islandphone.app.core.theme.IslandTheme
@@ -37,25 +38,20 @@ fun GlassSwitch(
 
     val thumbOffset by animateDpAsState(
         targetValue = if (checked) trackWidth - thumbSize - inset * 2 - 2.dp else 0.dp,
-        animationSpec = spring(dampingRatio = 0.6f, stiffness = 500f),
+        animationSpec = spring(dampingRatio = 0.72f, stiffness = 520f),
         label = "switchThumb"
     )
     val trackColor by animateColorAsState(
         targetValue = if (checked) colors.accent else colors.glassFill,
         label = "switchTrack"
     )
-    val thumbColor by animateColorAsState(
-        targetValue = if (checked) colors.onAccent else colors.accent,
-        label = "switchThumbColor"
-    )
 
     Box(
         modifier = modifier
             .alpha(if (enabled) 1f else 0.4f)
             .size(trackWidth, trackHeight)
-            .clip(CircleShape)
+            .glassSurface(CircleShape, elevation = 1.dp)
             .background(trackColor)
-            .border(1.dp, colors.glassBorder, CircleShape)
             .toggleable(
                 value = checked,
                 interactionSource = remember { MutableInteractionSource() },
@@ -71,7 +67,9 @@ fun GlassSwitch(
                 .offset(x = thumbOffset)
                 .size(thumbSize)
                 .clip(CircleShape)
-                .background(thumbColor)
+                .background(colors.backgroundElevated)
+                .background(Brush.verticalGradient(listOf(colors.glassEdgeHighlight.copy(alpha = 0.75f), androidx.compose.ui.graphics.Color.Transparent)))
+                .border(1.dp, colors.glassBorder, CircleShape)
         )
     }
 }

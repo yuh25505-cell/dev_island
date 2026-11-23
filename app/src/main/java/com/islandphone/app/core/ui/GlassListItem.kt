@@ -1,7 +1,5 @@
 package com.islandphone.app.core.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.islandphone.app.core.theme.IslandTheme
 
@@ -37,9 +34,7 @@ fun GlassListItem(
     Row(
         modifier = base
             .fillMaxWidth()
-            .clip(shape)
-            .background(colors.glassFill)
-            .border(1.dp, colors.glassBorder, shape)
+            .glassSurface(shape, elevation = if (onClick != null) 2.dp else 1.dp)
             .padding(horizontal = 18.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
