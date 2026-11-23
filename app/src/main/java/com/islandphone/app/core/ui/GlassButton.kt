@@ -17,7 +17,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.islandphone.app.core.theme.IslandTheme
 
-enum class GlassButtonStyle { Primary, Glass }
+enum class GlassButtonStyle { Primary, Glass, Danger }
 
 @Composable
 fun GlassButton(
@@ -29,10 +29,17 @@ fun GlassButton(
 ) {
     val colors = IslandTheme.colors
     val shape = RoundedCornerShape(22.dp)
-    val primary = style == GlassButtonStyle.Primary
-    val fill = if (primary) colors.accent else colors.glassFill
-    val textColor = if (primary) colors.onAccent else colors.accent
-    val borderColor = if (primary) Color.Transparent else colors.glassBorder
+    val fill = when (style) {
+        GlassButtonStyle.Primary -> colors.accent
+        GlassButtonStyle.Glass -> colors.glassFill
+        GlassButtonStyle.Danger -> colors.danger
+    }
+    val textColor = when (style) {
+        GlassButtonStyle.Primary -> colors.onAccent
+        GlassButtonStyle.Glass -> colors.accent
+        GlassButtonStyle.Danger -> Color.White
+    }
+    val borderColor = if (style == GlassButtonStyle.Glass) colors.glassBorder else Color.Transparent
 
     Box(
         modifier = modifier

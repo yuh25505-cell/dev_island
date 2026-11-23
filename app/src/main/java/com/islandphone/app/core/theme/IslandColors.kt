@@ -14,9 +14,11 @@ data class IslandColors(
     val glassFill: Color,
     val glassHighlight: Color,
     val glassBorder: Color,
+    val dialogSurface: Color,
     val accent: Color,
     val onAccent: Color,
-    val accentSoft: Color
+    val accentSoft: Color,
+    val danger: Color
 )
 
 val LightIslandColors = IslandColors(
@@ -28,9 +30,11 @@ val LightIslandColors = IslandColors(
     glassFill = Color(0xB3FFFFFF),
     glassHighlight = Color(0x80FFFFFF),
     glassBorder = Color(0x330099FF),
+    dialogSurface = Color(0xF7FFFFFF),
     accent = Color(0xFF0099FF),
     onAccent = Color(0xFFFFFFFF),
-    accentSoft = Color(0x290099FF)
+    accentSoft = Color(0x290099FF),
+    danger = Color(0xFFFF3B30)
 )
 
 val DarkIslandColors = IslandColors(
@@ -42,9 +46,11 @@ val DarkIslandColors = IslandColors(
     glassFill = Color(0x1FFFFFFF),
     glassHighlight = Color(0x14FFFFFF),
     glassBorder = Color(0x2EFFFFFF),
+    dialogSurface = Color(0xF21A1E25),
     accent = Color(0xFF3DB2FF),
     onAccent = Color(0xFF06121F),
-    accentSoft = Color(0x4D3DB2FF)
+    accentSoft = Color(0x4D3DB2FF),
+    danger = Color(0xFFFF6B61)
 )
 
 val LocalIslandColors = staticCompositionLocalOf { LightIslandColors }

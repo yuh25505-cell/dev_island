@@ -12,4 +12,19 @@
     <string name="demo_bar_home">首页</string>
     <string name="demo_bar_chat">消息</string>
     <string name="demo_bar_me">我</string>
+    <string name="dialog_confirm">确定</string>
+    <string name="dialog_cancel">取消</string>
+    <string name="demo_dialog_title">专属弹窗</string>
+    <string name="demo_open_confirm">确认框</string>
+    <string name="demo_open_sheet">底部弹层</string>
+    <string name="demo_open_input">输入框</string>
+    <string name="demo_open_choice">选择框</string>
+    <string name="demo_confirm_question">确定删除吗？</string>
+    <string name="demo_delete">删除</string>
+    <string name="demo_sheet_title">底部弹层</string>
+    <string name="demo_input_title">重命名</string>
+    <string name="demo_choice_title">请选择</string>
+    <string name="demo_choice_a">选项一</string>
+    <string name="demo_choice_b">选项二</string>
+    <string name="demo_choice_c">选项三</string>
 </resources>
