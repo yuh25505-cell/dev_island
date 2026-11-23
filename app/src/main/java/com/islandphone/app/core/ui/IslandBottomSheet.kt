@@ -47,9 +47,10 @@ fun IslandBottomSheet(
         }
 
         IslandDialogSurface(
-            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+            shape = RoundedCornerShape(32.dp),
             modifier = modifier
                 .fillMaxWidth()
+                .padding(horizontal = 10.dp, bottom = 10.dp)
                 .offset { IntOffset(0, offsetY.value.roundToInt()) }
         ) {
             Box(
@@ -78,7 +79,8 @@ fun IslandBottomSheet(
             }
             Column(
                 modifier = Modifier
-                    .heightIn(max = 520.dp)
+                    .heightIn(max = 640.dp)
+                    .imePadding()
                     .verticalScroll(rememberScrollState())
                     .navigationBarsPadding()
                     .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)

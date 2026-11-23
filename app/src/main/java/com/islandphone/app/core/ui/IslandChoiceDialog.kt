@@ -70,7 +70,7 @@ fun IslandChoiceDialog(
                                 }
                                 .clip(itemShape)
                                 .background(if (selected) colors.accentSoft else colors.glassFill)
-                                .border(1.dp, colors.glassBorder, itemShape)
+                                .border(1.dp, if (selected) colors.accent.copy(alpha = 0.42f) else colors.glassBorder, itemShape)
                                 .padding(horizontal = 18.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {

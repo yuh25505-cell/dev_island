@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -85,9 +86,10 @@ fun IslandInputDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(fieldShape)
-                        .background(colors.glassFill)
+                        .background(colors.backgroundElevated.copy(alpha = if (colors.isDark) 0.72f else 0.66f))
+                        .background(Brush.verticalGradient(listOf(colors.glassHighlight, androidx.compose.ui.graphics.Color.Transparent)))
                         .border(1.dp, colors.glassBorder, fieldShape)
-                        .padding(horizontal = 16.dp, vertical = 14.dp)
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
                 ) {
                     if (field.text.isEmpty() && hint != null) {
                         Text(
