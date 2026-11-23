@@ -27,4 +27,9 @@
     <string name="demo_choice_a">选项一</string>
     <string name="demo_choice_b">选项二</string>
     <string name="demo_choice_c">选项三</string>
+    <string name="nav_back">返回</string>
+    <string name="demo_nav_title">页面导航</string>
+    <string name="demo_open_page">二级页面</string>
+    <string name="demo_page_title">第 %1$d 层页面</string>
+    <string name="demo_page_next">再进一层</string>
 </resources>

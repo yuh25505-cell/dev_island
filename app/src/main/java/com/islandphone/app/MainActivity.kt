@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.islandphone.app.core.theme.IslandTheme
 import com.islandphone.app.core.theme.isDarkFor
 import com.islandphone.app.core.theme.islandColorsFor
-import com.islandphone.app.home.HomeScreen
+import com.islandphone.app.home.IslandRoot
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
             }
 
             IslandTheme(mode = mode) {
-                HomeScreen(
+                IslandRoot(
                     themeMode = mode,
                     onThemeModeChange = { newMode ->
                         scope.launch { themeRepository.setMode(newMode) }

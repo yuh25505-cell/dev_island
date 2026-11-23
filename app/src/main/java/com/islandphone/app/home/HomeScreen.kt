@@ -43,7 +43,8 @@ import com.islandphone.app.core.ui.ThemeModeSelector
 @Composable
 fun HomeScreen(
     themeMode: ThemeMode,
-    onThemeModeChange: (ThemeMode) -> Unit
+    onThemeModeChange: (ThemeMode) -> Unit,
+    onOpenDemoPage: () -> Unit = {}
 ) {
     val colors = IslandTheme.colors
     var switchOn by remember { mutableStateOf(true) }
@@ -131,6 +132,29 @@ fun HomeScreen(
             }
             Spacer(modifier = Modifier.height(20.dp))
             DialogShowcase()
+            Spacer(modifier = Modifier.height(20.dp))
+            GlassPanel(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(20.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.demo_nav_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.onBackground
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                GlassListItem(
+                    title = stringResource(R.string.demo_open_page),
+                    onClick = onOpenDemoPage,
+                    trailing = {
+                        Text(
+                            text = "›",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = colors.textSecondary
+                        )
+                    }
+                )
+            }
         }
 
         GlassBottomBar(
