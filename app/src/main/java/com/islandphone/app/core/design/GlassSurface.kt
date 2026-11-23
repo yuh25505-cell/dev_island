@@ -15,6 +15,6 @@ import androidx.compose.ui.unit.dp
 fun GlassSurface(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val shape = RoundedCornerShape(26.dp)
     Box(modifier.clip(shape)
-        .background(Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.30f), Color.White.copy(alpha = 0.10f))))
-        .border(1.dp, Color.White.copy(alpha = 0.38f), shape)) { content() }
+        .background(Brush.verticalGradient(listOf(Color.White.copy(alpha=.30f), Color.White.copy(alpha=.10f))))
+        .border(1.dp, Color.White.copy(alpha=.38f), shape)) { content() }
 }

@@ -29,14 +29,14 @@ fun SplashScreen(onFinished: () -> Unit) {
         delay(1450)
         onFinished()
     }
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background), contentAlignment=Alignment.Center) {
         Box(Modifier.size(230.dp).scale(0.35f + spread.value * 1.8f)
             .alpha((1f - spread.value).coerceIn(0f, 0.26f))
-            .background(Color(0xFF8EAFC9).copy(alpha = 0.42f), CircleShape))
-        Box(Modifier.offset(y = (-52).dp + falling.value * 52.dp).size(7.dp)
+            .background(Color(0xFF8EAFC9).copy(alpha=0.42f), CircleShape))
+        Box(Modifier.offset(y=(-52).dp + falling.value * 52.dp).size(7.dp)
             .alpha(1f - falling.value * 0.4f).background(Color(0xFF8EAFC9), CircleShape))
         Text("请让这座孤岛因你们而拥有属于它的故事",
-            Modifier.padding(horizontal = 28.dp).alpha(textFade.value),
-            color = MaterialTheme.colorScheme.onBackground, fontSize = 15.sp, letterSpacing = 1.8.sp)
+            Modifier.padding(horizontal=28.dp).alpha(textFade.value),
+            color=MaterialTheme.colorScheme.onBackground, fontSize=15.sp, letterSpacing=1.8.sp)
     }
 }

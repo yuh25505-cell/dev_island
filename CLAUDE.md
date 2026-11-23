@@ -16,7 +16,7 @@ UI只显示状态并发出操作；ViewModel协调状态/用例；Repository负�
 统一读取用户资料、角色资料、世界书、记忆和近期聊天。每个新 App 开始前，先写明读取哪些内容、注入顺序/预算、哪些玩法数据隔离、结束后保存什么、哪些可同步。角色/会话/玩法数据必须隔离。新 App 复用流程，但独立组织UI、玩法、场景和回复格式。改共用流程时检查既有功能。
 
 ## 角色生活模拟
-自主活动必须可设置频率、休息时间、全局或单角色暂停，并可查看活动记录。重要成长事件需可追溯，按规则编辑/删除/撤销。角色关系、日程、兴趣与生活状态来自持久数据，而非仅靠一次提示词生成。
+自主活动必须可设置频率、休息时段、全局或单角色暂停，并可查看活动记录。重要成长事件需可追溯、编辑/删除/撤销。角色关系、日程、兴趣与生活状态来自持久数据，而非仅靠一次提示词生成。
 
 ## 数据安全
 新增用户内容同时支持编辑和删除。可开启功能必须有关闭、暂停或撤销。共享需要明确双方授权并可退出。API密钥不得提交Git、写入日志或导出明文。权限按需申请，拒绝后提供可用降级。账号与管理员授权在服务端校验；隐藏按钮不是安全机制。设备绑定用安装级密钥与后端验证，避免IMEI。长期登录采用可撤销令牌机制。虚拟支付/外卖玩法不接真实付款。
@@ -31,7 +31,7 @@ UI只显示状态并发出操作；ViewModel协调状态/用例；Repository负�
 预设池统一管理，可编辑、删除、复制、测试、切换。聊天/总结/向量/重排/识图/语音/转写/生图分别配置，支持流式与非流式；官方与中转协议通过适配器支持。网络请求可取消，错误可读，流式中断不重复写入。
 
 ## GitHub Actions与签名
-Actions 输出 APK Artifact。签名信息只存 GitHub Secrets，不提交 keystore/JKS。推荐 Secrets：SIGNING_KEYSTORE_BASE64、SIGNING_KEYSTORE_PASSWORD、SIGNING_KEY_ALIAS、SIGNING_KEY_PASSWORD；实际已配置项需核对再使用。无签名配置时可构建 Debug 验证；Release签名需确保 Gradle 正确加载Secrets。applicationId 和证书不能随意变化，否则覆盖安装会失败。
+Actions 输出 APK Artifact。签名信息只存 GitHub Secrets，不提交 keystore/JKS。建议 Secrets：SIGNING_KEYSTORE_BASE64、SIGNING_KEYSTORE_PASSWORD、SIGNING_KEY_ALIAS、SIGNING_KEY_PASSWORD；配置已存在时核对实际名称再用。无签名配置时构建 Debug；Release签名需正确加载Secrets。applicationId 与证书不可随意变化，否则覆盖安装会失败。
 
 ## 每任务流程
 1. 阅读规则、计划、项目和关联文件。

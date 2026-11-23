@@ -13,9 +13,24 @@ android {
         versionCode = 1
         versionName = "0.1.0"
     }
+    signingConfigs {
+        create("release") {
+            val keyFile = System.getenv("SIGNING_KEYSTORE_FILE")
+            if (!keyFile.isNullOrBlank()) {
+                storeFile = file(keyFile)
+                storePassword = System.getenv("SIGNING_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("SIGNING_KEY_ALIAS")
+                keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         debug { applicationIdSuffix = ".debug" }
-        release { isMinifyEnabled = false }
+        release {
+            isMinifyEnabled = false
+            val keyFile = System.getenv("SIGNING_KEYSTORE_FILE")
+            if (!keyFile.isNullOrBlank()) signingConfig = signingConfigs.getByName("release")
+        }
     }
 }
 dependencies {

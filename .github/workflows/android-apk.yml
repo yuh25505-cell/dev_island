@@ -15,12 +15,36 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.13
       - name: Install Android SDK
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: gradle assembleDebug
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: IslandPhone-debug-${{ github.run_number }}
           path: app/build/outputs/apk/debug/*.apk
+      - name: Build signed Release if signing secrets are configured
+        env:
+          SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+          SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          if [ -n "$SIGNING_KEYSTORE_BASE64" ] && [ -n "$SIGNING_KEY_ALIAS" ]; then
+            echo "$SIGNING_KEYSTORE_BASE64" | base64 --decode > release-keystore.jks
+            export SIGNING_KEYSTORE_FILE="$PWD/release-keystore.jks"
+            gradle assembleRelease
+          else
+            echo "Signing secrets not configured; skipping signed Release APK."
+          fi
+      - name: Upload Release APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: IslandPhone-release-${{ github.run_number }}
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: ignore

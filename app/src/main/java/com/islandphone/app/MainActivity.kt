@@ -19,12 +19,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             IslandTheme {
                 var splash by remember { mutableStateOf(true) }
-                AnimatedContent(
-                    targetState = splash,
-                    transitionSpec = { fadeIn(tween(450)) togetherWith fadeOut(tween(300)) },
-                    label = "splash-home"
-                ) { show ->
-                    if (show) SplashScreen { splash = false } else HomeScreen()
+                AnimatedContent(targetState=splash,
+                    transitionSpec={ fadeIn(tween(450)) togetherWith fadeOut(tween(300)) },
+                    label="splash-home") { show ->
+                    if (show) SplashScreen { splash=false } else HomeScreen()
                 }
             }
         }
