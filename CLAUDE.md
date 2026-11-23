@@ -4,7 +4,7 @@
 每次开始工作先读取本文件、README.md、DEVELOPMENT_PLAN.md，随后检查当前目录、相关源代码、Git 状态和最近提交。按计划一次只完成一个任务，除非用户明确指定任务。不要臆测文件状态。
 
 ## 产品
-岛屿机是原生 AI-Native 角色生活模拟手机体验。角色有独立日常、朋友、兴趣、记忆和成长，不围绕用户不停触发。Android 原生 APK，不接受 WebView 套壳；iOS未来独立原生实现。包名 com.islandphone.app，当前版本 0.1.1。
+岛屿机是原生 AI-Native 角色生活模拟手机体验。角色有独立日常、朋友、兴趣、记忆和成长，不围绕用户不停触发。Android 原生 APK，不接受 WebView 套壳；iOS未来独立原生实现。包名 com.islandphone.app，当前版本 0.1.2。
 
 ## 技术选型
 Kotlin、Jetpack Compose、Android SDK；Navigation Compose；Room 结构数据；DataStore 设置；文件系统媒体；Coroutines/Flow；OkHttp 网络/流；WorkManager 可延续任务。AI Provider 适配层与提示词流程分开。Cloudflare 后端。依赖版本开工时核对稳定版与兼容性，不能宣称未经构建验证。
@@ -44,8 +44,9 @@ Actions 输出 APK Artifact。签名信息只存 GitHub Secrets，不提交 keys
 8. 重复问题总结为短规则补充本文档。
 
 ## 构建规则
-修改 Gradle Kotlin DSL 文件时，检查整个文件的大括号成对闭合；不能只检查报错行。每次改动构建配置后，以 GitHub Actions 的 assembleDebug 结果作为通过依据。
+修改 Gradle Kotlin DSL 文件时，检查整个文件的大括号成对闭合；不能只检查报错行。Android Java 与 Kotlin 编译目标需统一为 Java 17，修改后核对 compileOptions 与 kotlinOptions。每次改动构建配置后，以 GitHub Actions 的 assembleDebug 结果作为通过依据。
 
 ## 变更记录
+- 0.1.2 修复 Java/Kotlin JVM 目标不一致，统一为 17。
 - 0.1.1 修复根 build.gradle.kts 缺少闭合大括号，版本号升级。
 - 0.1.0 初始工程文档与启动/主屏幕骨架。
