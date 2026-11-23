@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace = "com.island.phone"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.island.phone"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2"
+        versionCode = 3
+        versionName = "0.3"
     }
 
     val keystorePath = System.getenv("KEYSTORE_PATH")
