@@ -23,7 +23,7 @@ private fun buildColorScheme(c: IslandColors): ColorScheme =
     if (c.isDark) {
         darkColorScheme(
             primary = c.accent,
-            onPrimary = c.background,
+            onPrimary = c.onAccent,
             background = c.background,
             onBackground = c.onBackground,
             surface = c.background,
@@ -33,7 +33,7 @@ private fun buildColorScheme(c: IslandColors): ColorScheme =
     } else {
         lightColorScheme(
             primary = c.accent,
-            onPrimary = c.background,
+            onPrimary = c.onAccent,
             background = c.background,
             onBackground = c.onBackground,
             surface = c.background,

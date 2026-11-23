@@ -4,4 +4,12 @@
     <string name="theme_follow_system">跟随系统</string>
     <string name="theme_light">日间</string>
     <string name="theme_dark">夜间</string>
+    <string name="demo_panel_title">液态玻璃</string>
+    <string name="demo_button_primary">主要按钮</string>
+    <string name="demo_button_glass">玻璃按钮</string>
+    <string name="demo_item_switch">开关</string>
+    <string name="demo_item_plain">列表项</string>
+    <string name="demo_bar_home">首页</string>
+    <string name="demo_bar_chat">消息</string>
+    <string name="demo_bar_me">我</string>
 </resources>
