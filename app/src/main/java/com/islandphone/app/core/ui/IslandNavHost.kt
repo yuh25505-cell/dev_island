@@ -30,8 +30,8 @@ private val PageSpring = spring<Float>(
     stiffness = 380f
 )
 
-private class IslandPageMotion(initial: Float) {
-    val fraction = Animatable(initial)
+private class IslandPageMotion {
+    val fraction = Animatable(0f)
     var sign: Float = 1f
 }
 
@@ -46,7 +46,7 @@ fun IslandNavHost(
     val entries = controller.entries
 
     fun motionOf(entry: IslandNavEntry): IslandPageMotion =
-        motions.getOrPut(entry.id) { IslandPageMotion(if (entry.animateIn) 1f else 0f) }
+        motions.getOrPut(entry.id) { IslandPageMotion() }
 
     LaunchedEffect(entries.size) {
         val alive = entries.map { it.id }.toSet()
@@ -90,10 +90,6 @@ fun IslandNavHost(
                     val topMotion = motionOf(entries[lastIndex])
                     val isTop = index == lastIndex
                     val isUnderTop = index == lastIndex - 1
-
-                    LaunchedEffect(Unit) {
-                        if (entry.animateIn) motion.fraction.animateTo(0f, PageSpring)
-                    }
 
                     Box(
                         modifier = Modifier

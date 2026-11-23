@@ -13,8 +13,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 @Stable
 class IslandNavEntry(
     val id: Int,
-    val route: String,
-    val animateIn: Boolean
+    val route: String
 )
 
 @Stable
@@ -27,14 +26,14 @@ class IslandNavController internal constructor(startRoutes: List<String>) {
         private set
 
     init {
-        startRoutes.forEach { entries.add(IslandNavEntry(nextId++, it, false)) }
+        startRoutes.forEach { entries.add(IslandNavEntry(nextId++, it)) }
     }
 
     val canGoBack: Boolean get() = entries.size > 1
 
     fun push(route: String) {
         if (backRequestId != null) return
-        entries.add(IslandNavEntry(nextId++, route, true))
+        entries.add(IslandNavEntry(nextId++, route))
     }
 
     fun back() {
