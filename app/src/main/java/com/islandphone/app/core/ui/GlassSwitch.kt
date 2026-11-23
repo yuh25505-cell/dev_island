@@ -37,7 +37,7 @@ fun GlassSwitch(
     val inset = 3.dp
 
     val thumbOffset by animateDpAsState(
-        targetValue = if (checked) trackWidth - thumbSize - inset * 2 - 2.dp else 0.dp,
+        targetValue = if (checked) trackWidth - thumbSize - inset * 2 else 0.dp,
         animationSpec = spring(dampingRatio = 0.72f, stiffness = 520f),
         label = "switchThumb"
     )
@@ -50,8 +50,10 @@ fun GlassSwitch(
         modifier = modifier
             .alpha(if (enabled) 1f else 0.4f)
             .size(trackWidth, trackHeight)
-            .glassSurface(CircleShape, elevation = 1.dp)
+            .clip(CircleShape)
             .background(trackColor)
+            .background(Brush.verticalGradient(listOf(colors.glassHighlight, androidx.compose.ui.graphics.Color.Transparent)))
+            .border(1.dp, colors.glassBorder, CircleShape)
             .toggleable(
                 value = checked,
                 interactionSource = remember { MutableInteractionSource() },
