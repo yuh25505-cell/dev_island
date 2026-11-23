@@ -33,40 +33,7 @@
     <string name="demo_page_title">第 %1$d 层页面</string>
     <string name="demo_page_next">再进一层</string>
 
-    <string name="splash_brand">ISLAND  /  PERSONAL AI</string>
-    <string name="splash_motion">IN MOTION</string>
-    <string name="splash_tagline">YOUR WORLD, STILL UNFOLDING</string>
-    <string name="splash_sub_left">PERSONAL BY NATURE</string>
-    <string name="splash_sub_right">OPEN TO WHAT\'S NEXT</string>
-    <string name="splash_footer_left">SMALL DEVICE. WIDE OPEN WORLD.</string>
-    <string name="splash_footer_right">ISLAND  /  2026</string>
-    <string name="splash_marquee_a">THINK CLEARLY / FEEL DEEPLY / MAKE THINGS /</string>
-    <string name="splash_marquee_b">YOUR DAY, YOUR RHYTHM / A PLACE OF YOUR OWN /</string>
-    <string name="splash_vert_left">—  MEMORY IS A MATERIAL  —</string>
-    <string name="splash_vert_right">—  A LITTLE UNEXPECTED  —</string>
-
-    <string-array name="splash_words">
-        <item>THINK</item>
-        <item>FEEL</item>
-        <item>CREATE</item>
-        <item>ISLAND</item>
-    </string-array>
-
-    <string-array name="splash_status">
-        <item>WAKING THE ISLAND</item>
-        <item>GATHERING YOUR LITTLE THINGS</item>
-        <item>MAKING ROOM FOR WHAT\'S NEXT</item>
-        <item>READY WHEN YOU ARE</item>
-        <item>ALL YOUR THINGS, IN PLACE</item>
-    </string-array>
-
-    <string-array name="splash_labels">
-        <item>— MORE THAN ONE THING</item>
-        <item>— IDEAS, UNPACKED</item>
-        <item>— THINK / FEEL / MAKE</item>
-        <item>— DAY / 001</item>
-        <item>— ROOM FOR POSSIBILITY</item>
-        <item>— LIFE / SOUND / STORY</item>
-        <item>— MADE TO MOVE WITH YOU</item>
-    </string-array>
+    <string name="splash_title">欢迎来到孤岛</string>
+    <string name="splash_line_1">请在这里开始你们的故事</string>
+    <string name="splash_line_2">形成一座属于你们的岛屿</string>
 </resources>
