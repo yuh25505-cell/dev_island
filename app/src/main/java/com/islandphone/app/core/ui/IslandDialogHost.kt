@@ -84,7 +84,7 @@ internal fun IslandDialogHost(
         onDispose {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && dialogWindow != null) {
                 dialogWindow.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-                dialogWindow.setBlurBehindRadius(0)
+                dialogWindow.attributes.apply { setBlurBehindRadius(0) }.also { dialogWindow.attributes = it }
             }
         }
     }
