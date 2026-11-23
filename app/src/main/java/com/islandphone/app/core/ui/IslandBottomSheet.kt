@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -50,7 +51,7 @@ fun IslandBottomSheet(
             shape = RoundedCornerShape(32.dp),
             modifier = modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, bottom = 10.dp)
+                .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
                 .offset { IntOffset(0, offsetY.value.roundToInt()) }
         ) {
             Box(

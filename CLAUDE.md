@@ -327,3 +327,4 @@ files/users/{账号ID}/
 
 - Android Compose 当前没有直接等同 Apple Liquid Glass 的背景折射 / 动态采样 API；玻璃组件先用自适应透明、渐变高光、边缘描光、轻阴影与触感动画近似，不能把它说成真背景模糊。
 - 弹窗的 Android 12+ 跨窗口模糊能力可能受设备/GPU/系统设置影响；必须先检查系统支持，不能支持时用较实的半透明底与遮罩兜底，确保文字对比度。
+- Android 跨窗口模糊半径由 `WindowManager.LayoutParams.setBlurBehindRadius()` 设置，调用后要把更新后的 attributes 重新赋回 Window；不要误调用 Window 上不存在的方法。

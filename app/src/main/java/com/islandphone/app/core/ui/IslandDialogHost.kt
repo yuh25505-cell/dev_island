@@ -71,11 +71,11 @@ internal fun IslandDialogHost(
             dialogWindow.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
             if (windowManager.isCrossWindowBlurEnabled) {
                 dialogWindow.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-                dialogWindow.setBlurBehindRadius((26f * view.resources.displayMetrics.density).toInt())
+                dialogWindow.attributes.apply { setBlurBehindRadius((26f * view.resources.displayMetrics.density).toInt()) }.also { dialogWindow.attributes = it }
                 blurBehindEnabled = true
             } else {
                 dialogWindow.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-                dialogWindow.setBlurBehindRadius(0)
+                dialogWindow.attributes.apply { setBlurBehindRadius(0) }.also { dialogWindow.attributes = it }
                 blurBehindEnabled = false
             }
         } else {
