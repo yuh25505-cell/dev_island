@@ -27,7 +27,6 @@
 02_Android原生基础_Kotlin_项目,创建第一个 Android 应用,https://developer.android.com/courses/android-basics-compose/course,官方 Compose 入门课程。
 02_Android原生基础_Kotlin_项目,Android 应用基础知识,https://developer.android.com/guide/components/fundamentals,Activity、Service、BroadcastReceiver、ContentProvider 等应用组件。
 02_Android原生基础_Kotlin_项目,Gradle Android Plugin,https://developer.android.com/build,Android 构建、变体、依赖和打包。
-02_Android原生基础_Kotlin_项目,Android 应用签名,https://developer.android.com/studio/publish/app-signing,APK 签名、密钥和发布。
 02_Android原生基础_Kotlin_项目,Build APK 官方说明,https://developer.android.com/build/building-cmdline,命令行构建 APK 与构建产物。
 03_Jetpack_Compose_原生界面,Jetpack Compose 总览,https://developer.android.com/develop/ui/compose,Android 原生声明式 UI 总入口。
 03_Jetpack_Compose_原生界面,Compose 基础,https://developer.android.com/develop/ui/compose/tutorial,Composable、状态和布局入门。
@@ -88,11 +87,10 @@
 09_主题_日夜间_字体_无障碍,Font resources,https://developer.android.com/develop/ui/views/text-and-emoji/fonts-in-xml,字体资源、字体族和字重。
 09_主题_日夜间_字体_无障碍,Compose Accessibility,https://developer.android.com/develop/ui/compose/accessibility,语义、对比度、读屏和触控目标。
 09_主题_日夜间_字体_无障碍,Reduce motion / animation,https://developer.android.com/develop/ui/compose/animation,动画可访问性与动态效果处理。
-10_测试_性能_发布,Android testing fundamentals,https://developer.android.com/training/testing/fundamentals,单元测试、界面测试和集成测试。
-10_测试_性能_发布,Compose UI tests,https://developer.android.com/develop/ui/compose/testing,Compose 界面自动化测试。
-10_测试_性能_发布,Macrobenchmark,https://developer.android.com/topic/performance/benchmarking/macrobenchmark-overview,启动、滚动和交互性能测试。
-10_测试_性能_发布,App startup time,https://developer.android.com/topic/performance/vitals/launch-time,启动速度优化。
-10_测试_性能_发布,Memory overview,https://developer.android.com/topic/performance/memory,内存使用与泄漏排查。
-10_测试_性能_发布,Android vitals,https://developer.android.com/topic/performance/vitals,崩溃、卡顿、耗电和稳定性指标。
-10_测试_性能_发布,Build and release,https://developer.android.com/studio/publish,构建、签名和发布流程。
-10_测试_性能_发布,APK Analyzer,https://developer.android.com/studio/build/apk-analyzer,检查 APK 内容、大小和依赖。
+10_测试_性能,Android testing fundamentals,https://developer.android.com/training/testing/fundamentals,单元测试、界面测试和集成测试。
+10_测试_性能,Compose UI tests,https://developer.android.com/develop/ui/compose/testing,Compose 界面自动化测试。
+10_测试_性能,Macrobenchmark,https://developer.android.com/topic/performance/benchmarking/macrobenchmark-overview,启动、滚动和交互性能测试。
+10_测试_性能,App startup time,https://developer.android.com/topic/performance/vitals/launch-time,启动速度优化。
+10_测试_性能,Memory overview,https://developer.android.com/topic/performance/memory,内存使用与泄漏排查。
+10_测试_性能,Android vitals,https://developer.android.com/topic/performance/vitals,崩溃、卡顿、耗电和稳定性指标。
+10_测试_性能,APK Analyzer,https://developer.android.com/studio/build/apk-analyzer,检查 APK 内容、大小和依赖。
