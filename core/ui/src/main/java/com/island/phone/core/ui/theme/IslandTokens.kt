@@ -83,8 +83,8 @@ val NightIcon = IconTokens(
 )
 
 val DayDots = PageDotTokens(
-    active = Color(0xCC3A4358),
-    inactive = Color(0x4D3A4358),
+    active = Color(0xF2FFFFFF),
+    inactive = Color(0x73FFFFFF),
 )
 
 val NightDots = PageDotTokens(

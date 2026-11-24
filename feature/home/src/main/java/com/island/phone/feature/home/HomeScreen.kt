@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,16 +20,17 @@ import com.island.phone.core.ui.glass.rememberBackdropState
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
     val backdrop = rememberBackdropState()
+    val state = remember { HomeState(GridApps) }
     CompositionLocalProvider(LocalBackdrop provides backdrop) {
         Box(modifier = modifier.fillMaxSize()) {
             Wallpaper(modifier = Modifier.fillMaxSize().backdropSource(backdrop))
             HomePager(
-                apps = GridApps,
+                state = state,
                 modifier = Modifier
                     .fillMaxSize()
                     .windowInsetsPadding(WindowInsets.statusBars)
                     .windowInsetsPadding(WindowInsets.navigationBars)
-                    .padding(top = 16.dp, bottom = 118.dp)
+                    .padding(top = 48.dp, bottom = 118.dp)
             )
             Dock(
                 apps = DockApps,
@@ -37,6 +39,15 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     .windowInsetsPadding(WindowInsets.navigationBars)
                     .padding(horizontal = 16.dp, vertical = 10.dp)
             )
+            if (state.editing) {
+                EditDoneButton(
+                    onClick = { state.editing = false },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .windowInsetsPadding(WindowInsets.statusBars)
+                        .padding(top = 6.dp, end = 16.dp)
+                )
+            }
         }
     }
 }
