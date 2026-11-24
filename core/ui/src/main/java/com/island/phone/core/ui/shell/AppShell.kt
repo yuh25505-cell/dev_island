@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +36,7 @@ import com.island.phone.core.ui.appearance.drawImageCover
 import com.island.phone.core.ui.glass.GlassSurface
 import com.island.phone.core.ui.glass.OwnBackdrop
 import com.island.phone.core.ui.glass.glassPressable
+import com.island.phone.core.ui.text.BasicText
 import com.island.phone.core.ui.theme.IslandTheme
 
 @Composable

@@ -4,11 +4,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFontFamilyResolver
 import com.island.phone.core.ui.appearance.AppearanceStore
 
 enum class ThemeMode { FOLLOW_SYSTEM, DAY, NIGHT }
@@ -48,12 +46,6 @@ object IslandTheme {
 @Composable
 fun IslandTheme(mode: ThemeMode, content: @Composable () -> Unit) {
     val dark = mode.resolveDark()
-    val store = AppearanceStore.get(LocalContext.current)
-    val baseResolver = LocalFontFamilyResolver.current
-    val customFont = store.fontFamily
-    val resolver = remember(baseResolver, customFont) {
-        if (customFont == null) baseResolver else OverrideFontResolver(baseResolver, customFont)
-    }
     CompositionLocalProvider(
         LocalDark provides dark,
         LocalGlass provides (if (dark) NightGlass else DayGlass),
@@ -62,7 +54,6 @@ fun IslandTheme(mode: ThemeMode, content: @Composable () -> Unit) {
         LocalDots provides (if (dark) NightDots else DayDots),
         LocalFolder provides (if (dark) NightFolder else DayFolder),
         LocalWidget provides (if (dark) NightWidget else DayWidget),
-        LocalFontFamilyResolver provides resolver,
         content = content
     )
 }
