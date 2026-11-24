@@ -19,6 +19,14 @@ data class WallpaperTokens(
     val blobC: Color,
 )
 
+data class IconTokens(
+    val glyph: Color,
+    val glyphShadow: Color,
+    val tileTint: Color,
+    val label: Color,
+    val labelShadow: Color,
+)
+
 val DayGlass = GlassTokens(
     tint = Color(0x33FFFFFF),
     tintFallback = Color(0x66FFFFFF),
@@ -51,4 +59,20 @@ val NightWallpaper = WallpaperTokens(
     blobA = Color(0xFF3B4C9B),
     blobB = Color(0xFF6A3C8F),
     blobC = Color(0xFF1E6F7A),
+)
+
+val DayIcon = IconTokens(
+    glyph = Color(0xF5FFFFFF),
+    glyphShadow = Color(0x33203040),
+    tileTint = Color(0x3D56667A),
+    label = Color(0xFF2B2F38),
+    labelShadow = Color(0x00000000),
+)
+
+val NightIcon = IconTokens(
+    glyph = Color(0xF2FFFFFF),
+    glyphShadow = Color(0x66000000),
+    tileTint = Color(0x12FFFFFF),
+    label = Color(0xFFFFFFFF),
+    labelShadow = Color(0x66000000),
 )

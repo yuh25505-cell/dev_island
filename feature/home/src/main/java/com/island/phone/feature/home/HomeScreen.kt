@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -21,7 +22,15 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     CompositionLocalProvider(LocalBackdrop provides backdrop) {
         Box(modifier = modifier.fillMaxSize()) {
             Wallpaper(modifier = Modifier.fillMaxSize().backdropSource(backdrop))
+            AppGrid(
+                apps = GridApps,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(top = 16.dp, bottom = 130.dp)
+            )
             Dock(
+                apps = DockApps,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .windowInsetsPadding(WindowInsets.navigationBars)

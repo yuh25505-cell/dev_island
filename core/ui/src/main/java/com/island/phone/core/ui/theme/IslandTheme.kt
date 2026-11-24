@@ -18,6 +18,7 @@ fun ThemeMode.resolveDark(): Boolean = when (this) {
 private val LocalDark = staticCompositionLocalOf { false }
 private val LocalGlass = staticCompositionLocalOf { DayGlass }
 private val LocalWallpaper = staticCompositionLocalOf { DayWallpaper }
+private val LocalIcon = staticCompositionLocalOf { DayIcon }
 
 object IslandTheme {
     val dark: Boolean
@@ -26,6 +27,8 @@ object IslandTheme {
         @Composable @ReadOnlyComposable get() = LocalGlass.current
     val wallpaper: WallpaperTokens
         @Composable @ReadOnlyComposable get() = LocalWallpaper.current
+    val icon: IconTokens
+        @Composable @ReadOnlyComposable get() = LocalIcon.current
 }
 
 @Composable
@@ -35,6 +38,7 @@ fun IslandTheme(mode: ThemeMode, content: @Composable () -> Unit) {
         LocalDark provides dark,
         LocalGlass provides (if (dark) NightGlass else DayGlass),
         LocalWallpaper provides (if (dark) NightWallpaper else DayWallpaper),
+        LocalIcon provides (if (dark) NightIcon else DayIcon),
         content = content
     )
 }

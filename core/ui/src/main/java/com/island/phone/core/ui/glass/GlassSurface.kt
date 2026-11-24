@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.island.phone.core.ui.theme.GlassTokens
 import com.island.phone.core.ui.theme.IslandTheme
@@ -31,6 +32,7 @@ import com.island.phone.core.ui.theme.IslandTheme
 fun GlassSurface(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(28.dp),
+    elevation: Dp = 14.dp,
     content: @Composable BoxScope.() -> Unit = {},
 ) {
     val backdrop = LocalBackdrop.current
@@ -38,7 +40,7 @@ fun GlassSurface(
     var origin by remember { mutableStateOf(Offset.Zero) }
     Box(
         modifier = modifier
-            .shadow(14.dp, shape, clip = false, ambientColor = glass.shadow, spotColor = glass.shadow)
+            .shadow(elevation, shape, clip = false, ambientColor = glass.shadow, spotColor = glass.shadow)
             .clip(shape)
             .onGloballyPositioned { origin = it.positionInRoot() }
             .drawBehind { drawGlass(shape, backdrop, origin, glass) },
