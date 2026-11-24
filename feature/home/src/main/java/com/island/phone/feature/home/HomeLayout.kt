@@ -16,5 +16,15 @@ val GridPadV = 8.dp
 val CellHeight = 84.dp
 val RowGap = 22.dp
 
-fun paginate(apps: List<AppId>, perPage: Int = AppsPerPage): List<List<AppId>> =
-    if (apps.isEmpty()) listOf(emptyList()) else apps.chunked(perPage)
+const val FolderColumns = 3
+const val FolderCapacity = 9
+const val FolderNameMax = 10
+const val DefaultFolderName = "文件夹"
+
+val FolderCellW = 84.dp
+val FolderCellH = 98.dp
+val FolderPanelPad = 20.dp
+val FolderPanelWidth = FolderCellW * FolderColumns + FolderPanelPad * 2
+
+fun <T> paginate(items: List<T>, perPage: Int = AppsPerPage): List<List<T>> =
+    if (items.isEmpty()) listOf(emptyList()) else items.chunked(perPage)

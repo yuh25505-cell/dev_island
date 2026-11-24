@@ -32,6 +32,14 @@ data class PageDotTokens(
     val inactive: Color,
 )
 
+data class FolderTokens(
+    val scrim: Color,
+    val panelFill: Color,
+    val title: Color,
+    val cursor: Color,
+    val miniTile: Color,
+)
+
 val DayGlass = GlassTokens(
     tint = Color(0x33FFFFFF),
     tintFallback = Color(0x66FFFFFF),
@@ -90,4 +98,20 @@ val DayDots = PageDotTokens(
 val NightDots = PageDotTokens(
     active = Color(0xF2FFFFFF),
     inactive = Color(0x66FFFFFF),
+)
+
+val DayFolder = FolderTokens(
+    scrim = Color(0x40000000),
+    panelFill = Color(0x59FFFFFF),
+    title = Color(0xFF2B2F38),
+    cursor = Color(0xFF2B2F38),
+    miniTile = Color(0x2E5A6C8A),
+)
+
+val NightFolder = FolderTokens(
+    scrim = Color(0x80000000),
+    panelFill = Color(0x331B2540),
+    title = Color(0xFFFFFFFF),
+    cursor = Color(0xFFFFFFFF),
+    miniTile = Color(0x1FFFFFFF),
 )

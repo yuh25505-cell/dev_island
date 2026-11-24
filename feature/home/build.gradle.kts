@@ -23,6 +23,7 @@ android {
 
 dependencies {
     implementation(project(":core:ui"))
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.foundation)
 }

@@ -48,6 +48,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                         .padding(top = 6.dp, end = 16.dp)
                 )
             }
+            val openFolder = state.openFolder
+            if (openFolder != null) {
+                FolderPopup(folder = openFolder, state = state)
+            }
         }
     }
 }

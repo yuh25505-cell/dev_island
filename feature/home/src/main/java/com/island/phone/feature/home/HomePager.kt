@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.island.phone.core.ui.icons.AppIconWithLabel
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -41,9 +40,28 @@ private fun Density.slotIndex(pos: Offset, width: Int, page: Int): Int {
     return page * AppsPerPage + row * GridColumns + col
 }
 
+private fun Density.inCellCenter(pos: Offset, width: Int): Boolean {
+    val padH = GridPadH.toPx()
+    val padV = GridPadV.toPx()
+    val cellW = (width - 2 * padH) / GridColumns
+    val rowH = (CellHeight + RowGap).toPx()
+    val x = ((pos.x - padH).coerceIn(0f, cellW * GridColumns - 1f) % cellW) / cellW
+    val y = (pos.y - padV).coerceAtLeast(0f) % rowH
+    return x in 0.2f..0.8f && y in 6.dp.toPx()..56.dp.toPx()
+}
+
+private fun finishDrag(state: HomeState) {
+    val dragged = state.dragging
+    val hover = state.hoverKey
+    if (dragged is AppItem && hover != null && state.mergeReady) {
+        state.mergeInto(dragged, hover)
+    }
+    state.clearDrag()
+}
+
 @Composable
 fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
-    val pages = paginate(state.apps.toList())
+    val pages = paginate(state.items.toList())
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val density = LocalDensity.current
     var boxWidth by remember { mutableStateOf(0) }
@@ -65,11 +83,28 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                 val target = pagerState.currentPage + edge
                 if (target < 0 || target >= pagerState.pageCount) break
                 pagerState.animateScrollToPage(target)
-                val app = state.dragging
-                if (app != null) {
-                    state.moveTo(app, density.slotIndex(state.dragPos, boxWidth, pagerState.currentPage))
+                val dragged = state.dragging
+                if (dragged != null) {
+                    state.moveTo(dragged.key, density.slotIndex(state.dragPos, boxWidth, pagerState.currentPage))
                 }
             }
+        }
+    }
+    LaunchedEffect(state.pendingMove) {
+        val target = state.pendingMove
+        if (target != null) {
+            delay(220)
+            val dragged = state.dragging
+            if (dragged != null && state.pendingMove == target) {
+                state.moveTo(dragged.key, target)
+                state.pendingMove = null
+            }
+        }
+    }
+    LaunchedEffect(state.hoverKey) {
+        if (state.hoverKey != null) {
+            delay(450)
+            state.mergeReady = true
         }
     }
     Column(modifier = modifier) {
@@ -81,7 +116,10 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                 .pointerInput(Unit) {
                     detectTapGestures { pos ->
                         val index = slotIndex(pos, size.width, pagerState.currentPage)
-                        if (state.editing && index >= state.apps.size) {
+                        val item = state.items.getOrNull(index)
+                        if (item is FolderItem) {
+                            state.openFolderId = item.id
+                        } else if (state.editing && item == null) {
                             state.editing = false
                         }
                     }
@@ -90,25 +128,40 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                     detectDragGesturesAfterLongPress(
                         onDragStart = { pos ->
                             val index = slotIndex(pos, size.width, pagerState.currentPage)
-                            if (index < state.apps.size) {
-                                state.dragging = state.apps[index]
+                            val item = state.items.getOrNull(index)
+                            if (item != null) {
+                                state.clearDrag()
+                                state.dragging = item
                                 state.dragPos = pos
                                 state.editing = true
                             }
                         },
                         onDrag = { change, amount ->
-                            val app = state.dragging
-                            if (app != null) {
+                            val dragged = state.dragging
+                            if (dragged != null) {
                                 change.consume()
                                 state.dragPos = state.dragPos + amount
-                                state.moveTo(
-                                    app,
-                                    slotIndex(state.dragPos, size.width, pagerState.currentPage)
-                                )
+                                val index = slotIndex(state.dragPos, size.width, pagerState.currentPage)
+                                val target = state.items.getOrNull(index)
+                                if (target != null &&
+                                    state.canMerge(dragged, target) &&
+                                    inCellCenter(state.dragPos, size.width)
+                                ) {
+                                    state.pendingMove = null
+                                    if (state.hoverKey != target.key) {
+                                        state.hoverKey = target.key
+                                        state.mergeReady = false
+                                    }
+                                } else {
+                                    state.hoverKey = null
+                                    state.mergeReady = false
+                                    val own = state.indexOfKey(dragged.key)
+                                    state.pendingMove = if (index != own) index else null
+                                }
                             }
                         },
-                        onDragEnd = { state.dragging = null },
-                        onDragCancel = { state.dragging = null }
+                        onDragEnd = { finishDrag(state) },
+                        onDragCancel = { state.clearDrag() }
                     )
                 }
         ) {
@@ -117,7 +170,7 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                 userScrollEnabled = state.dragging == null,
                 modifier = Modifier.fillMaxWidth()
             ) { index ->
-                AppGrid(apps = pages[index], state = state)
+                AppGrid(items = pages[index], state = state)
             }
             val dragged = state.dragging
             if (dragged != null) {
@@ -136,7 +189,7 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                         },
                     contentAlignment = Alignment.TopCenter
                 ) {
-                    AppIconWithLabel(dragged)
+                    HomeItemIcon(dragged)
                 }
             }
         }
