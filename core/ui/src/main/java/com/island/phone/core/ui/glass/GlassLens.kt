@@ -73,7 +73,9 @@ half4 main(float2 p) {
     float outer = length(m);
     float sd = outer + min(max(d.x, d.y), 0.0) - radius;
     float depth = clamp(-sd / max(zone, 1.0), 0.0, 1.0);
-    float k = (1.0 - depth) * (1.0 - depth);
+    float u = 1.0 - depth;
+    float slope = u / sqrt(max(1.0 - u * u, 0.04));
+    float k = min(slope, 2.5) / 2.5;
     float2 dir;
     if (outer > 0.0001) {
         dir = normalize(m) * sign(q);
@@ -84,8 +86,8 @@ half4 main(float2 p) {
     }
     float zoom = 1.0 + magnify * 0.3;
     float2 base = c + q / zoom;
-    float2 bend = dir * k * refraction * zone * 0.8;
-    float2 spread = dir * k * dispersion * zone * 0.35;
+    float2 bend = dir * k * refraction * zone * 1.1;
+    float2 spread = dir * k * dispersion * zone * 0.4;
     float2 sp = base - bend;
     float2 lo = float2(0.5);
     float2 hi = size - float2(0.5);

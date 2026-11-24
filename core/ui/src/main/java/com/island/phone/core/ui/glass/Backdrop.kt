@@ -15,11 +15,14 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -118,7 +121,19 @@ fun PopupBackdrop(
             modifier = Modifier
                 .matchParentSize()
                 .backdropRecordOnly(state)
-                .drawBehind { drawRect(base) }
+                .drawBehind {
+                    drawRect(base)
+                    val lightBase = base.luminance() > 0.5f
+                    val soft = if (lightBase) Color(0x305A6C8A) else Color(0x1FFFFFFF)
+                    val strong = if (lightBase) Color(0x80FFFFFF) else Color(0x40000000)
+                    val r = size.width * 0.6f
+                    val c1 = Offset(size.width * 0.2f, size.height * 0.25f)
+                    val c2 = Offset(size.width * 0.85f, size.height * 0.5f)
+                    val c3 = Offset(size.width * 0.35f, size.height * 0.85f)
+                    drawCircle(Brush.radialGradient(listOf(soft, Color.Transparent), center = c1, radius = r), radius = r, center = c1)
+                    drawCircle(Brush.radialGradient(listOf(strong, Color.Transparent), center = c2, radius = r), radius = r, center = c2)
+                    drawCircle(Brush.radialGradient(listOf(soft, Color.Transparent), center = c3, radius = r), radius = r, center = c3)
+                }
         )
         CompositionLocalProvider(LocalBackdrop provides state) {
             content()

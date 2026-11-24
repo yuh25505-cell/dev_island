@@ -85,6 +85,10 @@ private fun DrawScope.drawGlass(
     val outline = shape.createOutline(size, layoutDirection, this)
     val edgePx = settings.edge.dp.toPx()
     val blurOn = backdrop != null && backdrop.blurSupported
+    val minDim = min(size.width, size.height)
+    val half = minDim / 2f
+    val zone = ((minDim * 0.2f).coerceIn(10.dp.toPx(), 34.dp.toPx()) *
+        (max(settings.edge, 0.5f) / 2f)).coerceIn(1f, max(half, 1f))
     if (backdrop != null && blurOn) {
         val delta = origin - backdrop.origin
         if (lensLayer != null) {
@@ -93,7 +97,6 @@ private fun DrawScope.drawGlass(
             lensLayer.record(this, layoutDirection, IntSize(w, h)) {
                 translate(-delta.x, -delta.y) { drawLayer(backdrop.blurred) }
             }
-            val half = min(size.width, size.height) / 2f
             val radius = when (outline) {
                 is Outline.Rounded -> outline.roundRect.topLeftCornerRadius.x
                 is Outline.Rectangle -> 0f
@@ -104,7 +107,7 @@ private fun DrawScope.drawGlass(
                 size.width,
                 size.height,
                 radius,
-                max(edgePx * 6f, 1f),
+                zone,
                 settings.refraction,
                 settings.dispersion,
                 settings.magnify
@@ -115,11 +118,27 @@ private fun DrawScope.drawGlass(
         }
     }
     drawRect((if (blurOn) glass.tint else glass.tintFallback).scaleAlpha(settings.tint))
+    val shadeStrength = settings.shadow
+    for (i in 0 until 4) {
+        val f = 1f - i / 4f
+        drawOutline(
+            outline,
+            glass.innerShade.scaleAlpha(0.6f * shadeStrength),
+            style = Stroke(zone * 2f * f)
+        )
+    }
     drawRect(
         Brush.verticalGradient(
             colors = listOf(glass.highlight.scaleAlpha(settings.highlight), Color.Transparent),
             startY = 0f,
-            endY = size.height * 0.45f
+            endY = size.height * 0.4f
+        )
+    )
+    drawRect(
+        Brush.verticalGradient(
+            colors = listOf(Color.Transparent, glass.highlight.scaleAlpha(settings.highlight * 0.5f)),
+            startY = size.height * 0.72f,
+            endY = size.height
         )
     )
     if (edgePx > 0.05f) {
@@ -131,6 +150,15 @@ private fun DrawScope.drawGlass(
             start = Offset.Zero,
             end = Offset(size.width, size.height)
         )
-        drawOutline(outline, rim, style = Stroke(edgePx))
+        val glow = Brush.linearGradient(
+            0f to glass.rimLight.scaleAlpha(settings.highlight * 0.3f),
+            0.3f to Color.Transparent,
+            0.7f to Color.Transparent,
+            1f to glass.rimLight.scaleAlpha(settings.highlight * 0.3f),
+            start = Offset.Zero,
+            end = Offset(size.width, size.height)
+        )
+        drawOutline(outline, glow, style = Stroke(edgePx * 6f))
+        drawOutline(outline, rim, style = Stroke(edgePx * 2f))
     }
 }
