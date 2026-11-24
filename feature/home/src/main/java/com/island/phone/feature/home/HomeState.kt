@@ -17,8 +17,10 @@ class HomeState(initial: List<AppId>) {
         WidgetPlacement(WidgetKind.BATTERY, 0, 2, 2),
         WidgetPlacement(WidgetKind.WEATHER, 1, 0, 0),
         WidgetPlacement(WidgetKind.COUNTDOWN, 1, 2, 2),
+        WidgetPlacement(WidgetKind.PHOTOCARD, 2, 0, 2),
     )
     var editing by mutableStateOf(false)
+    var photoCardOpen by mutableStateOf(false)
     var dragging by mutableStateOf<HomeItem?>(null)
     var draggingWidget by mutableStateOf<WidgetKind?>(null)
     var widgetGrab by mutableStateOf(Offset.Zero)

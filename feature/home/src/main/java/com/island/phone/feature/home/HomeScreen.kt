@@ -52,6 +52,9 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             if (openFolder != null) {
                 FolderPopup(folder = openFolder, state = state)
             }
+            if (state.photoCardOpen) {
+                PhotoCardEditor(state = state)
+            }
         }
     }
 }
