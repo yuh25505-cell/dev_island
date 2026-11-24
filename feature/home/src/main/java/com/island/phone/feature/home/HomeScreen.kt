@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.island.phone.core.ui.glass.LocalBackdrop
 import com.island.phone.core.ui.glass.backdropSource
@@ -19,9 +22,13 @@ import com.island.phone.core.ui.glass.rememberBackdropState
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     val backdrop = rememberBackdropState()
-    val state = remember { HomeState(GridApps) }
+    val state = remember { HomeState(GridApps).also { LayoutStore.restore(context, it) } }
     val launcher = remember { LauncherState() }
+    LaunchedEffect(state) {
+        snapshotFlow { LayoutStore.encode(state) }.collect { LayoutStore.save(context, it) }
+    }
     CompositionLocalProvider(
         LocalBackdrop provides backdrop,
         LocalLauncher provides launcher

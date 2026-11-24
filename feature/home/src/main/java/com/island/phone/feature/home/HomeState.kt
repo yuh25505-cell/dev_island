@@ -175,6 +175,14 @@ class HomeState(initial: List<AppId>) {
         items[i] = folder.copy(name = name.take(FolderNameMax))
     }
 
+    fun restore(savedItems: List<HomeItem>, savedWidgets: List<WidgetPlacement>) {
+        items.clear()
+        items.addAll(savedItems)
+        widgets.clear()
+        widgets.addAll(savedWidgets)
+        nextFolderId = (savedItems.filterIsInstance<FolderItem>().maxOfOrNull { it.id } ?: 0) + 1
+    }
+
     fun closeFolder() {
         val id = openFolderId
         if (id != null) {
