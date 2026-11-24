@@ -8,7 +8,7 @@ val DockApps = listOf(AppId.CHAT, AppId.PHONE, AppId.ALBUM, AppId.SETTINGS)
 val GridApps = AppId.entries.filter { it !in DockApps }
 
 const val GridColumns = 4
-const val GridRows = 5
+const val GridRows = 4
 const val AppsPerPage = GridColumns * GridRows
 
 val GridPadH = 16.dp
