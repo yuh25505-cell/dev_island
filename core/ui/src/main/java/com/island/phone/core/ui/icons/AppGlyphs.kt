@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import com.island.phone.core.ui.apps.AppId
 import kotlin.math.PI
 import kotlin.math.cos
@@ -117,24 +118,48 @@ fun DrawScope.drawAppGlyph(app: AppId, color: Color) {
                 fillPath(c, diff(circlePath(50f, 50f, 32f), hands))
             }
             AppId.SETTINGS -> {
-                disc(c, 50f, 50f, 16f)
-                for (i in 0 until 8) {
-                    val a = i * PI / 4
-                    line(
-                        c,
-                        50f + (25 * cos(a)).toFloat(), 50f + (25 * sin(a)).toFloat(),
-                        50f + (34 * cos(a)).toFloat(), 50f + (34 * sin(a)).toFloat(),
-                        8f
-                    )
+                val gear = Path().apply {
+                    for (i in 0 until 8) {
+                        val a = i * 45.0 - 90.0
+                        val pts = listOf(
+                            polar(27f, a - 12.0),
+                            polar(35f, a - 8.0),
+                            polar(35f, a + 8.0),
+                            polar(27f, a + 12.0),
+                            polar(27f, a + 22.5)
+                        )
+                        for ((k, p) in pts.withIndex()) {
+                            if (i == 0 && k == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y)
+                        }
+                    }
+                    close()
                 }
+                fillPath(c, diff(gear, circlePath(50f, 50f, 11f)), 2.5f)
             }
             AppId.PHONE -> {
-                stroked(c, 13f) {
-                    moveTo(32f, 30f)
-                    cubicTo(30f, 54f, 46f, 70f, 70f, 68f)
+                val handset = Path().apply {
+                    moveTo(6.62f, 10.79f)
+                    relativeCubicTo(1.44f, 2.83f, 3.76f, 5.14f, 6.59f, 6.59f)
+                    relativeLineTo(2.2f, -2.2f)
+                    relativeCubicTo(0.27f, -0.27f, 0.67f, -0.36f, 1.02f, -0.24f)
+                    relativeCubicTo(1.12f, 0.37f, 2.33f, 0.57f, 3.57f, 0.57f)
+                    relativeCubicTo(0.55f, 0f, 1f, 0.45f, 1f, 1f)
+                    lineTo(21f, 20f)
+                    relativeCubicTo(0f, 0.55f, -0.45f, 1f, -1f, 1f)
+                    relativeCubicTo(-9.39f, 0f, -17f, -7.61f, -17f, -17f)
+                    relativeCubicTo(0f, -0.55f, 0.45f, -1f, 1f, -1f)
+                    relativeLineTo(3.5f, 0f)
+                    relativeCubicTo(0.55f, 0f, 1f, 0.45f, 1f, 1f)
+                    relativeCubicTo(0f, 1.25f, 0.2f, 2.45f, 0.57f, 3.57f)
+                    relativeCubicTo(0.11f, 0.35f, 0.03f, 0.74f, -0.25f, 1.02f)
+                    relativeLineTo(-2.2f, 2.2f)
+                    close()
                 }
-                disc(c, 32f, 30f, 10f)
-                disc(c, 70f, 68f, 10f)
+                translate(left = 6.8f, top = 6.8f) {
+                    scale(scale = 3.6f, pivot = Offset.Zero) {
+                        fillPath(c, handset, 0.5f)
+                    }
+                }
             }
             AppId.COUNTDOWN -> {
                 fillPath(c, Path().apply {
@@ -167,14 +192,18 @@ fun DrawScope.drawAppGlyph(app: AppId, color: Color) {
                 })
             }
             AppId.MUSIC -> {
-                fillPath(c, roundPath(52f, 26f, 60f, 68f, 4f))
-                disc(c, 46f, 70f, 12f)
-                fillPath(c, Path().apply {
-                    moveTo(56f, 26f)
-                    cubicTo(61f, 36f, 73f, 38f, 74f, 54f)
-                    cubicTo(67f, 46f, 61f, 44f, 56f, 44f)
+                val flagAndStem = Path().apply {
+                    moveTo(49f, 68f)
+                    lineTo(49f, 22f)
+                    cubicTo(58f, 26f, 70f, 32f, 71f, 52f)
+                    cubicTo(66f, 45f, 61f, 43f, 57f, 42f)
+                    lineTo(57f, 68f)
                     close()
-                })
+                }
+                val note = union(flagAndStem, circlePath(43f, 68f, 13f))
+                translate(left = 2f, top = 0f) {
+                    fillPath(c, note, 1.5f)
+                }
             }
             AppId.MEET -> {
                 val pin = Path().apply {
@@ -264,6 +293,11 @@ fun DrawScope.drawAppGlyph(app: AppId, color: Color) {
             }
         }
     }
+}
+
+private fun polar(r: Float, deg: Double): Offset {
+    val rad = deg * PI / 180.0
+    return Offset(50f + (r * cos(rad)).toFloat(), 50f + (r * sin(rad)).toFloat())
 }
 
 private fun pen(w: Float) = Stroke(width = w, cap = StrokeCap.Round, join = StrokeJoin.Round)
