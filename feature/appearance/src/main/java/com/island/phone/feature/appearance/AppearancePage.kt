@@ -1,5 +1,6 @@
 package com.island.phone.feature.appearance
 
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +40,15 @@ fun AppearancePage(onBack: () -> Unit) {
     val launchWallpaperPicker = {
         pickWallpaper.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
+    val pickFont = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            scope.launch {
+                if (!store.importFont(uri)) {
+                    Toast.makeText(context, "这个字体文件用不了", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AppShell(title = "外观", onBack = onBack) {
@@ -71,6 +81,22 @@ fun AppearancePage(onBack: () -> Unit) {
                         title = "应用图标",
                         color = labelColor
                     ) { iconsOpen = true }
+                }
+                Spacer(Modifier.height(16.dp))
+                SettingCard(
+                    title = "字体",
+                    titleColor = labelColor,
+                    action = {
+                        MinusButton(
+                            color = labelColor,
+                            enabled = store.hasCustomFont
+                        ) { store.resetFont() }
+                    }
+                ) {
+                    EntryRow(
+                        title = "全局字体",
+                        color = labelColor
+                    ) { pickFont.launch(arrayOf("*/*")) }
                 }
                 Spacer(Modifier.height(16.dp))
                 SettingCard(title = "动画", titleColor = labelColor) {

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.graphics.Typeface
 import android.media.ExifInterface
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -12,6 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import com.island.phone.core.ui.apps.AppId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,6 +31,9 @@ class AppearanceStore private constructor(context: Context) {
     val pageAnimation: Boolean
         get() = pageAnimationState
 
+    var fontFamily by mutableStateOf<FontFamily?>(loadFontFamily())
+        private set
+
     var wallpaper by mutableStateOf<ImageBitmap?>(initialWallpaper?.asImageBitmap())
         private set
 
@@ -43,11 +49,42 @@ class AppearanceStore private constructor(context: Context) {
     val hasCustomIcons: Boolean
         get() = icons.isNotEmpty()
 
+    val hasCustomFont: Boolean
+        get() = fontFamily != null
+
     fun iconOf(app: AppId): ImageBitmap? = icons[app]
 
     fun setPageAnimation(enabled: Boolean) {
         pageAnimationState = enabled
         prefs.edit().putBoolean(KeyPageAnimation, enabled).apply()
+    }
+
+    suspend fun importFont(uri: Uri): Boolean {
+        val saved = withContext(Dispatchers.IO) {
+            val temp = File(dir, "appearance_font.tmp")
+            try {
+                val input = resolver.openInputStream(uri) ?: return@withContext false
+                input.use { source -> temp.outputStream().use { source.copyTo(it) } }
+                if (!looksLikeFont(temp)) {
+                    temp.delete()
+                    return@withContext false
+                }
+                Typeface.createFromFile(temp)
+                fontFile().delete()
+                temp.renameTo(fontFile())
+            } catch (e: Exception) {
+                temp.delete()
+                false
+            }
+        }
+        if (!saved) return false
+        fontFamily = loadFontFamily()
+        return fontFamily != null
+    }
+
+    fun resetFont() {
+        fontFile().delete()
+        fontFamily = null
     }
 
     suspend fun importWallpaper(uri: Uri): Boolean {
@@ -115,6 +152,30 @@ class AppearanceStore private constructor(context: Context) {
     private fun wallpaperFile() = File(dir, "appearance_wallpaper.jpg")
 
     private fun iconFile(app: AppId) = File(dir, "appearance_icon_${app.name}.png")
+
+    private fun fontFile() = File(dir, "appearance_font.ttf")
+
+    private fun looksLikeFont(file: File): Boolean {
+        val head = ByteArray(4)
+        val count = file.inputStream().use { it.read(head) }
+        if (count < 4) return false
+        val tag = String(head, Charsets.ISO_8859_1)
+        val isTrueType = head[0] == 0.toByte() && head[1] == 1.toByte() &&
+            head[2] == 0.toByte() && head[3] == 0.toByte()
+        return isTrueType || tag == "OTTO" || tag == "true" || tag == "ttcf"
+    }
+
+    private fun loadFontFamily(): FontFamily? {
+        val file = fontFile()
+        if (!file.exists()) return null
+        return try {
+            Typeface.createFromFile(file)
+            FontFamily(Font(file))
+        } catch (e: Exception) {
+            file.delete()
+            null
+        }
+    }
 
     private fun readBitmap(file: File): Bitmap? {
         if (!file.exists()) return null

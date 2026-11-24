@@ -45,6 +45,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.island.phone.core.ui.appearance.rememberPageAnimation
 import com.island.phone.core.ui.glass.GlassSurface
 import com.island.phone.core.ui.glass.glassPressable
 import com.island.phone.core.ui.theme.IslandTheme
@@ -58,20 +59,22 @@ fun VinylEditor(state: HomeState) {
     val labelColor = IslandTheme.icon.label
     val store = VinylStore.get(LocalContext.current)
     val scope = rememberCoroutineScope()
+    val animate = rememberPageAnimation()
 
-    var shown by remember { mutableStateOf(false) }
+    var shown by remember { mutableStateOf(!animate) }
     var closing by remember { mutableStateOf(false) }
     var backProgress by remember { mutableStateOf(0f) }
 
     LaunchedEffect(Unit) { shown = true }
-    val appear by animateFloatAsState(
+    val appearAnimated by animateFloatAsState(
         targetValue = if (shown && !closing) 1f else 0f,
         animationSpec = spring(dampingRatio = 0.82f, stiffness = 420f),
         label = "vinylEditorAppear"
     )
+    val appear = if (animate) appearAnimated else if (closing) 0f else 1f
     LaunchedEffect(closing) {
         if (closing) {
-            delay(160)
+            if (animate) delay(160)
             state.vinylOpen = false
         }
     }
@@ -82,7 +85,7 @@ fun VinylEditor(state: HomeState) {
 
     PredictiveBackHandler(enabled = !closing) { progress ->
         try {
-            progress.collect { backProgress = it.progress }
+            progress.collect { if (animate) backProgress = it.progress }
             requestClose()
         } catch (e: CancellationException) {
             backProgress = 0f

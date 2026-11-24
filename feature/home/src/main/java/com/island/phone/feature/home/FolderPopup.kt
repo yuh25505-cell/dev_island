@@ -51,6 +51,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.island.phone.core.ui.appearance.rememberPageAnimation
 import com.island.phone.core.ui.apps.AppId
 import com.island.phone.core.ui.glass.GlassSurface
 import com.island.phone.core.ui.glass.glassPressable
@@ -67,8 +68,9 @@ fun FolderPopup(folder: FolderItem, state: HomeState) {
     val focus = LocalFocusManager.current
     val launcher = LocalLauncher.current
     val current by rememberUpdatedState(folder)
+    val animate = rememberPageAnimation()
 
-    var shown by remember { mutableStateOf(false) }
+    var shown by remember { mutableStateOf(!animate) }
     var closing by remember { mutableStateOf(false) }
     var backProgress by remember { mutableStateOf(0f) }
     var rootOrigin by remember { mutableStateOf(Offset.Zero) }
@@ -78,14 +80,15 @@ fun FolderPopup(folder: FolderItem, state: HomeState) {
     var dragPos by remember { mutableStateOf(Offset.Zero) }
 
     LaunchedEffect(Unit) { shown = true }
-    val appear by animateFloatAsState(
+    val appearAnimated by animateFloatAsState(
         targetValue = if (shown && !closing) 1f else 0f,
         animationSpec = spring(dampingRatio = 0.82f, stiffness = 420f),
         label = "folderAppear"
     )
+    val appear = if (animate) appearAnimated else if (closing) 0f else 1f
     LaunchedEffect(closing) {
         if (closing) {
-            delay(160)
+            if (animate) delay(160)
             state.closeFolder()
         }
     }
@@ -97,7 +100,7 @@ fun FolderPopup(folder: FolderItem, state: HomeState) {
 
     PredictiveBackHandler(enabled = !closing) { progress ->
         try {
-            progress.collect { backProgress = it.progress }
+            progress.collect { if (animate) backProgress = it.progress }
             requestClose()
         } catch (e: CancellationException) {
             backProgress = 0f
