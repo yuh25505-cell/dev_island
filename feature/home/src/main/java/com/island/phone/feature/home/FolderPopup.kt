@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
@@ -56,6 +54,8 @@ import com.island.phone.core.ui.apps.AppId
 import com.island.phone.core.ui.glass.GlassSurface
 import com.island.phone.core.ui.glass.glassPressable
 import com.island.phone.core.ui.icons.AppIconWithLabel
+import com.island.phone.core.ui.text.BasicText
+import com.island.phone.core.ui.text.BasicTextField
 import com.island.phone.core.ui.theme.IslandTheme
 import kotlinx.coroutines.delay
 import kotlin.coroutines.cancellation.CancellationException

@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,6 +43,7 @@ import com.island.phone.core.ui.glass.OwnBackdrop
 import com.island.phone.core.ui.glass.glassPressable
 import com.island.phone.core.ui.icons.AppIcon
 import com.island.phone.core.ui.shell.HoldShellEdgeBack
+import com.island.phone.core.ui.text.BasicText
 import com.island.phone.core.ui.theme.IslandTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
