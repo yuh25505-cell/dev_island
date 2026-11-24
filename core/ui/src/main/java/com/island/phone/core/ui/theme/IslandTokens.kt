@@ -62,9 +62,9 @@ val NightWallpaper = WallpaperTokens(
 )
 
 val DayIcon = IconTokens(
-    glyph = Color(0xF23F4B6B),
-    glyphShadow = Color(0x66FFFFFF),
-    tileTint = Color(0x26FFFFFF),
+    glyph = Color(0xF5FFFFFF),
+    glyphShadow = Color(0x33203040),
+    tileTint = Color(0x14FFFFFF),
     label = Color(0xFF2B2F38),
     labelShadow = Color(0x00000000),
 )
