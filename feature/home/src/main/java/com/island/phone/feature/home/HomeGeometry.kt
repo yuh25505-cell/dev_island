@@ -15,5 +15,9 @@ fun Density.widgetRect(kind: WidgetKind, row: Int, col: Int, width: Int): CellRe
     val aw = kind.cols * cellW - 2 * inset
     val ay = padV + row * stride
     val ah = (kind.rows - 1) * stride + 60.dp.toPx()
-    return CellRect(ax, ay, aw, ah)
+    return if (kind == WidgetKind.CLOCK) {
+        CellRect(ax, ay, aw, ah)
+    } else {
+        CellRect(ax - (ah - aw) / 2f, ay, ah, ah)
+    }
 }
