@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.island.phone.core.ui.apps.AppId
 import com.island.phone.core.ui.glass.GlassSurface
+import com.island.phone.core.ui.glass.glassPressable
 import com.island.phone.core.ui.icons.AppIconWithLabel
 import com.island.phone.core.ui.theme.IslandTheme
 import kotlinx.coroutines.delay
@@ -218,7 +219,7 @@ fun FolderPopup(folder: FolderItem, state: HomeState) {
                     }
                     Spacer(Modifier.height(6.dp))
                     GlassSurface(
-                        modifier = Modifier.clickable { state.dissolveFolder(folder.id) },
+                        modifier = Modifier.glassPressable { state.dissolveFolder(folder.id) },
                         shape = RoundedCornerShape(50),
                         elevation = 4.dp
                     ) {
