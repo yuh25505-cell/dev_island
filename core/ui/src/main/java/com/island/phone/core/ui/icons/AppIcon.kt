@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,6 +30,7 @@ import com.island.phone.core.ui.theme.IslandTheme
 @Composable
 fun AppIcon(app: AppId, modifier: Modifier = Modifier, size: Dp = 60.dp) {
     val tokens = IslandTheme.icon
+    val dark = IslandTheme.dark
     val custom = AppearanceStore.get(LocalContext.current).iconOf(app)
     GlassSurface(
         modifier = modifier.size(size),
@@ -45,10 +45,7 @@ fun AppIcon(app: AppId, modifier: Modifier = Modifier, size: Dp = 60.dp) {
                         drawImageCover(custom)
                     } else {
                         drawRect(tokens.tileTint)
-                        translate(0f, this.size.minDimension * 0.015f) {
-                            drawAppGlyph(app, tokens.glyphShadow)
-                        }
-                        drawAppGlyph(app, tokens.glyph)
+                        drawPremiumAppGlyph(app, dark)
                     }
                 }
         )
