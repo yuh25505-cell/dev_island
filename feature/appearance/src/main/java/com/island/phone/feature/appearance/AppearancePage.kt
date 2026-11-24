@@ -20,9 +20,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.island.phone.core.ui.appearance.AppearanceStore
 import com.island.phone.core.ui.shell.AppShell
+import com.island.phone.core.ui.text.BasicText
 import com.island.phone.core.ui.theme.IslandTheme
 import kotlinx.coroutines.launch
 
@@ -33,6 +36,7 @@ fun AppearancePage(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val labelColor = IslandTheme.icon.label
     var iconsOpen by remember { mutableStateOf(false) }
+    var fontsOpen by remember { mutableStateOf(false) }
 
     val pickWallpaper = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) scope.launch { store.importWallpaper(uri) }
@@ -40,10 +44,10 @@ fun AppearancePage(onBack: () -> Unit) {
     val launchWallpaperPicker = {
         pickWallpaper.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
-    val pickFont = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+    val pickEmoji = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             scope.launch {
-                if (!store.importFont(uri)) {
+                if (!store.importEmoji(uri)) {
                     Toast.makeText(context, "这个字体文件用不了", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -95,8 +99,36 @@ fun AppearancePage(onBack: () -> Unit) {
                 ) {
                     EntryRow(
                         title = "全局字体",
-                        color = labelColor
-                    ) { pickFont.launch(arrayOf("*/*")) }
+                        color = labelColor,
+                        trailing = {
+                            BasicText(
+                                text = "Aa字",
+                                style = TextStyle(color = labelColor.copy(alpha = 0.6f), fontSize = 15.sp)
+                            )
+                        }
+                    ) { fontsOpen = true }
+                }
+                Spacer(Modifier.height(16.dp))
+                SettingCard(
+                    title = "表情",
+                    titleColor = labelColor,
+                    action = {
+                        MinusButton(
+                            color = labelColor,
+                            enabled = store.hasEmojiFont
+                        ) { store.resetEmoji() }
+                    }
+                ) {
+                    EntryRow(
+                        title = "表情字体",
+                        color = labelColor,
+                        trailing = {
+                            BasicText(
+                                text = "😀",
+                                style = TextStyle(fontSize = 17.sp)
+                            )
+                        }
+                    ) { pickEmoji.launch(arrayOf("*/*")) }
                 }
                 Spacer(Modifier.height(16.dp))
                 SettingCard(title = "动画", titleColor = labelColor) {
@@ -110,6 +142,9 @@ fun AppearancePage(onBack: () -> Unit) {
         }
         if (iconsOpen) {
             IconsSubPage(store = store, onClose = { iconsOpen = false })
+        }
+        if (fontsOpen) {
+            FontsSubPage(store = store, onClose = { fontsOpen = false })
         }
     }
 }
