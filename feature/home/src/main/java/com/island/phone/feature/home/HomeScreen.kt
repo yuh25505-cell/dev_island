@@ -22,12 +22,13 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     CompositionLocalProvider(LocalBackdrop provides backdrop) {
         Box(modifier = modifier.fillMaxSize()) {
             Wallpaper(modifier = Modifier.fillMaxSize().backdropSource(backdrop))
-            AppGrid(
+            HomePager(
                 apps = GridApps,
                 modifier = Modifier
                     .fillMaxSize()
                     .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(top = 16.dp, bottom = 130.dp)
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+                    .padding(top = 16.dp, bottom = 118.dp)
             )
             Dock(
                 apps = DockApps,

@@ -11,8 +11,8 @@ android {
         applicationId = "com.island.phone"
         minSdk = 26
         targetSdk = 36
-        versionCode = 10
-        versionName = "0.10"
+        versionCode = 11
+        versionName = "0.11"
     }
 
     val keystorePath = System.getenv("KEYSTORE_PATH")

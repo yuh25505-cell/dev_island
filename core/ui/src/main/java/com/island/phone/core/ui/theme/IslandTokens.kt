@@ -27,6 +27,11 @@ data class IconTokens(
     val labelShadow: Color,
 )
 
+data class PageDotTokens(
+    val active: Color,
+    val inactive: Color,
+)
+
 val DayGlass = GlassTokens(
     tint = Color(0x33FFFFFF),
     tintFallback = Color(0x66FFFFFF),
@@ -75,4 +80,14 @@ val NightIcon = IconTokens(
     tileTint = Color(0x12FFFFFF),
     label = Color(0xFFFFFFFF),
     labelShadow = Color(0x66000000),
+)
+
+val DayDots = PageDotTokens(
+    active = Color(0xCC3A4358),
+    inactive = Color(0x4D3A4358),
+)
+
+val NightDots = PageDotTokens(
+    active = Color(0xF2FFFFFF),
+    inactive = Color(0x66FFFFFF),
 )
