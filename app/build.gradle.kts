@@ -11,8 +11,8 @@ android {
         applicationId = "com.island.phone"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.3"
+        versionCode = 4
+        versionName = "0.4"
     }
 
     val keystorePath = System.getenv("KEYSTORE_PATH")
@@ -47,6 +47,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:ui"))
+    implementation(project(":feature:home"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.ui)
