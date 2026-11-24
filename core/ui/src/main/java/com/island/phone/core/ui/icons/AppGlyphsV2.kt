@@ -18,35 +18,20 @@ import com.island.phone.core.ui.apps.AppId
 private data class GlyphPalette(val top: Color, val bottom: Color, val shine: Color)
 
 private fun palette(app: AppId, dark: Boolean): GlyphPalette {
-    val pair = when (app) {
-        AppId.AUTH -> 0xFFDCE6F0 to 0xFF778DA8
-        AppId.CHAT -> 0xFFFFD6C9 to 0xFFE87879
-        AppId.APPEARANCE -> 0xFFE6D8FF to 0xFF8C78D8
-        AppId.GROWTH -> 0xFFD7F4C4 to 0xFF62A879
-        AppId.ALBUM -> 0xFFFFD8E9 to 0xFFD66E9B
-        AppId.CALENDAR -> 0xFFFFD7D2 to 0xFFE45D62
-        AppId.MEMO -> 0xFFFFE8B8 to 0xFFD59A4C
-        AppId.WEATHER -> 0xFFD9F0FF to 0xFF659FD4
-        AppId.CLOCK -> 0xFFE4E7F2 to 0xFF858EA8
-        AppId.SETTINGS -> 0xFFE5E5EB to 0xFF858B9B
-        AppId.PHONE -> 0xFFD4F2D9 to 0xFF54A978
-        AppId.COUNTDOWN -> 0xFFFFE2C4 to 0xFFD68A4D
-        AppId.WORLDBOOK -> 0xFFD8E9FF to 0xFF6488C2
-        AppId.MUSIC -> 0xFFE8D9FF to 0xFF966BD0
-        AppId.MEET -> 0xFFFFD8D0 to 0xFFE17B68
-        AppId.LINK -> 0xFFD5F0EF to 0xFF55A9A5
-        AppId.FORUM -> 0xFFE5E2FF to 0xFF8275C9
-        AppId.NOVEL -> 0xFFFFE3D0 to 0xFFD38D6A
-        AppId.COUPLE -> 0xFFFFD8E2 to 0xFFD96F91
-        AppId.PRESET -> 0xFFD9E7F7 to 0xFF6E91BD
-        AppId.SIDELINE -> 0xFFE0E7F0 to 0xFF778CA8
-        AppId.SHOP -> 0xFFFFE5C7 to 0xFFD99A53
-        AppId.DREAM -> 0xFFE0DFFF to 0xFF7776C6
+    // 全部图标共用 iOS 风格的银灰玻璃色系，不按 App 分配彩色主题。
+    return if (dark) {
+        GlyphPalette(
+            top = Color(0xFFE3E5E8),
+            bottom = Color(0xFF777D85),
+            shine = Color(0xFFF7F8FA)
+        )
+    } else {
+        GlyphPalette(
+            top = Color(0xFFFFFFFF),
+            bottom = Color(0xFF9DA3AA),
+            shine = Color(0xFFFFFFFF)
+        )
     }
-    val top = Color(pair.first)
-    val bottom = Color(pair.second)
-    return if (dark) GlyphPalette(top.copy(red = (top.red * 0.88f).coerceIn(0f, 1f)), bottom, Color.White.copy(alpha = 0.88f))
-    else GlyphPalette(top, bottom, Color.White.copy(alpha = 0.96f))
 }
 
 private fun rect(l: Float, t: Float, r: Float, b: Float, radius: Float) =
@@ -66,14 +51,178 @@ private fun cut(a: Path, b: Path) = Path.combine(PathOperation.Difference, a, b)
 private fun path(build: Path.() -> Unit) = Path().apply(build)
 
 private fun DrawScope.paint(path: Path, p: GlyphPalette) {
-    val brush = Brush.linearGradient(
-        colors = listOf(p.top, p.top.copy(alpha = 0.96f), p.bottom),
-        start = Offset(size.width * 0.18f, size.height * 0.08f),
-        end = Offset(size.width * 0.82f, size.height * 0.94f)
+    // 先压出柔和的暗边，再叠银灰玻璃本体、内侧亮边和顶部反光。
+    drawPath(
+        path,
+        Color(0x55000000),
+        style = Stroke(width = 5.2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
     )
-    drawPath(path, brush)
-    drawPath(path, Color(0x55000000), style = Stroke(width = 1.8f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    drawPath(path, Brush.linearGradient(listOf(p.shine.copy(alpha = 0.78f), Color.Transparent)), style = Stroke(width = 2.4f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    drawPath(
+        path,
+        Brush.linearGradient(
+            colors = listOf(
+                Color(0xFFFDFDFE),
+                p.top.copy(alpha = 0.94f),
+                Color(0xFFB9BEC5),
+                p.bottom.copy(alpha = 0.96f)
+            ),
+            start = Offset(size.width * 0.16f, size.height * 0.06f),
+            end = Offset(size.width * 0.82f, size.height * 0.98f)
+        )
+    )
+    drawPath(
+        path,
+        Brush.linearGradient(
+            colors = listOf(Color.White.copy(alpha = 0.82f), Color.Transparent),
+            start = Offset(size.width * 0.2f, size.height * 0.04f),
+            end = Offset(size.width * 0.72f, size.height * 0.7f)
+        ),
+        style = Stroke(width = 2.8f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    )
+    drawPath(
+        path,
+        Brush.linearGradient(
+            colors = listOf(Color(0xFF555B63).copy(alpha = 0.5f), Color.Transparent),
+            start = Offset(size.width * 0.8f, size.height * 0.9f),
+            end = Offset(size.width * 0.28f, size.height * 0.2f)
+        ),
+        style = Stroke(width = 1.35f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    )
+}
+
+private fun DrawScope.detailLine(
+    p: GlyphPalette,
+    x1: Float, y1: Float, x2: Float, y2: Float,
+    width: Float = 1.8f,
+    alpha: Float = 0.72f
+) {
+    drawLine(
+        p.shine.copy(alpha = alpha),
+        Offset(x1, y1),
+        Offset(x2, y2),
+        strokeWidth = width,
+        cap = StrokeCap.Round
+    )
+}
+
+private fun DrawScope.drawMaterialDetails(app: AppId, p: GlyphPalette, dark: Boolean) {
+    val hi = p.shine.copy(alpha = if (dark) 0.72f else 0.9f)
+    val shade = Color(0xFF555B63).copy(alpha = if (dark) 0.42f else 0.28f)
+    when (app) {
+        AppId.SETTINGS -> {
+            drawCircle(shade, 17f, Offset(50f, 50f), style = Stroke(2.2f))
+            drawCircle(hi, 8.5f, Offset(50f, 50f), style = Stroke(2.4f))
+            for (i in 0 until 12) {
+                val a = Math.PI * i / 6.0
+                val x = 50f + (31f * kotlin.math.cos(a)).toFloat()
+                val y = 50f + (31f * kotlin.math.sin(a)).toFloat()
+                drawCircle(hi, 1.8f, Offset(x, y))
+            }
+        }
+        AppId.ALBUM -> {
+            drawCircle(hi, 7f, Offset(50f, 50f))
+            drawCircle(shade, 29f, Offset(50f, 50f), style = Stroke(1.3f))
+        }
+        AppId.CLOCK -> {
+            drawCircle(shade, 33f, Offset(50f, 50f), style = Stroke(2f))
+            for (i in 0 until 12) {
+                val a = Math.PI * i / 6.0
+                val r1 = if (i % 3 == 0) 26f else 28f
+                val r2 = 31f
+                detailLine(p,
+                    50f + (r1 * kotlin.math.sin(a)).toFloat(),
+                    50f - (r1 * kotlin.math.cos(a)).toFloat(),
+                    50f + (r2 * kotlin.math.sin(a)).toFloat(),
+                    50f - (r2 * kotlin.math.cos(a)).toFloat(),
+                    if (i % 3 == 0) 2.2f else 1.2f
+                )
+            }
+            detailLine(p, 50f, 50f, 38f, 34f, 3f)
+            detailLine(p, 50f, 50f, 65f, 57f, 2.4f)
+            drawCircle(hi, 3f, Offset(50f, 50f))
+        }
+        AppId.CALENDAR -> {
+            detailLine(p, 31f, 43f, 69f, 43f, 2.2f)
+            detailLine(p, 35f, 55f, 65f, 55f, 1.5f, 0.55f)
+            detailLine(p, 35f, 72f, 65f, 72f, 1.5f, 0.55f)
+        }
+        AppId.WEATHER -> {
+            drawCircle(hi, 10f, Offset(35f, 33f), style = Stroke(2f))
+            detailLine(p, 27f, 15f, 24f, 10f, 1.8f)
+            detailLine(p, 43f, 15f, 46f, 10f, 1.8f)
+            detailLine(p, 17f, 34f, 11f, 34f, 1.8f)
+            detailLine(p, 29f, 83f, 25f, 90f, 2f)
+            detailLine(p, 49f, 83f, 45f, 90f, 2f)
+            detailLine(p, 69f, 83f, 65f, 90f, 2f)
+        }
+        AppId.CHAT -> {
+            drawCircle(hi, 2.2f, Offset(36f, 45f))
+            drawCircle(hi, 2.2f, Offset(50f, 45f))
+            drawCircle(hi, 2.2f, Offset(64f, 45f))
+        }
+        AppId.PHONE -> {
+            detailLine(p, 29f, 25f, 38f, 37f, 2.4f)
+            detailLine(p, 62f, 64f, 76f, 74f, 2.4f)
+        }
+        AppId.MUSIC -> {
+            detailLine(p, 62f, 23f, 62f, 59f, 2f)
+            detailLine(p, 67f, 24f, 78f, 31f, 1.6f, 0.6f)
+        }
+        AppId.MEMO, AppId.NOVEL -> {
+            detailLine(p, 34f, 32f, 34f, 70f, 1.6f, 0.6f)
+            detailLine(p, 46f, 39f, 65f, 39f, 1.5f, 0.58f)
+            detailLine(p, 46f, 53f, 65f, 53f, 1.5f, 0.58f)
+        }
+        AppId.MEET -> {
+            drawCircle(hi, 8f, Offset(50f, 39f), style = Stroke(2f))
+            drawCircle(shade, 13f, Offset(50f, 39f), style = Stroke(1.2f))
+        }
+        AppId.LINK -> {
+            drawCircle(hi, 12f, Offset(38f, 50f), style = Stroke(2f))
+            drawCircle(hi, 12f, Offset(62f, 50f), style = Stroke(2f))
+        }
+        AppId.AUTH, AppId.SHOP -> {
+            detailLine(p, 39f, 45f, 39f, 36f, 2f)
+            detailLine(p, 61f, 45f, 61f, 36f, 2f)
+            drawCircle(hi, 2.2f, Offset(50f, 60f))
+        }
+        AppId.GROWTH -> {
+            detailLine(p, 50f, 58f, 50f, 82f, 1.8f)
+            detailLine(p, 50f, 62f, 69f, 37f, 1.4f, 0.6f)
+        }
+        AppId.WORLDBOOK -> {
+            detailLine(p, 50f, 29f, 50f, 77f, 2f)
+            detailLine(p, 25f, 38f, 42f, 38f, 1.4f, 0.55f)
+            detailLine(p, 58f, 38f, 75f, 38f, 1.4f, 0.55f)
+        }
+        AppId.FORUM -> {
+            drawCircle(hi, 2f, Offset(27f, 31f))
+            drawCircle(hi, 2f, Offset(73f, 31f))
+        }
+        AppId.COUNTDOWN -> {
+            detailLine(p, 35f, 25f, 65f, 25f, 2f)
+            detailLine(p, 35f, 75f, 65f, 75f, 2f)
+        }
+        AppId.APPEARANCE -> {
+            drawCircle(hi, 3f, Offset(50f, 50f))
+        }
+        AppId.COUPLE -> {
+            detailLine(p, 50f, 35f, 50f, 70f, 1.2f, 0.25f)
+        }
+        AppId.PRESET -> {
+            drawCircle(hi, 3f, Offset(42f, 32f))
+            drawCircle(hi, 3f, Offset(63f, 51f))
+            drawCircle(hi, 3f, Offset(35f, 70f))
+        }
+        AppId.SIDELINE -> {
+            detailLine(p, 24f, 34f, 50f, 54f, 2f)
+            detailLine(p, 50f, 54f, 76f, 34f, 2f)
+        }
+        AppId.DREAM -> {
+            drawCircle(hi, 3f, Offset(74f, 25f))
+            drawCircle(hi, 1.8f, Offset(27f, 35f))
+        }
+    }
 }
 
 fun DrawScope.drawPremiumAppGlyph(app: AppId, dark: Boolean) {
@@ -163,6 +312,7 @@ fun DrawScope.drawPremiumAppGlyph(app: AppId, dark: Boolean) {
             AppId.DREAM -> cut(oval(48f, 51f, 32f), oval(63f, 39f, 27f)).let { merge(it, oval(76f, 22f, 4f), oval(23f, 29f, 3f)) }
         }
         paint(glyph, p)
+        drawMaterialDetails(app, p, dark)
         drawCircle(Color.White.copy(alpha = if (dark) 0.48f else 0.62f), radius = 2.1f, center = Offset(32f, 25f))
     }
 }
