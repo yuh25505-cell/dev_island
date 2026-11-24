@@ -1,7 +1,10 @@
 package com.island.phone.core.ui.glass
 
 import android.os.Build
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,3 +56,19 @@ fun Modifier.backdropSource(state: BackdropState): Modifier = this
         state.blurred.record { drawLayer(state.raw) }
         drawLayer(state.raw)
     }
+
+@Composable
+fun OwnBackdrop(
+    modifier: Modifier = Modifier,
+    blurRadius: Dp = 28.dp,
+    source: @Composable BoxScope.() -> Unit,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    val state = rememberBackdropState(blurRadius)
+    Box(modifier = modifier) {
+        Box(modifier = Modifier.matchParentSize().backdropSource(state), content = source)
+        CompositionLocalProvider(LocalBackdrop provides state) {
+            content()
+        }
+    }
+}

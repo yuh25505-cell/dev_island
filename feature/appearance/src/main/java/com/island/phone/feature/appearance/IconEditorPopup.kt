@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import com.island.phone.core.ui.appearance.AppearanceStore
 import com.island.phone.core.ui.apps.AppId
 import com.island.phone.core.ui.glass.GlassSurface
+import com.island.phone.core.ui.glass.OwnBackdrop
 import com.island.phone.core.ui.glass.glassPressable
 import com.island.phone.core.ui.icons.AppIcon
 import com.island.phone.core.ui.shell.HoldShellEdgeBack
@@ -116,57 +117,67 @@ fun IconEditorPopup(app: AppId, store: AppearanceStore, onClose: () -> Unit) {
                 shape = RoundedCornerShape(36.dp),
                 elevation = 18.dp
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .drawBehind { drawRect(tokens.panelFill) }
-                        .padding(horizontal = 24.dp, vertical = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                OwnBackdrop(
+                    modifier = Modifier.fillMaxWidth(),
+                    source = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .drawBehind { drawRect(tokens.panelFill) }
+                        )
+                    }
                 ) {
-                    Box(
-                        modifier = Modifier.glassPressable {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(
+                            modifier = Modifier.glassPressable {
+                                pick.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            }
+                        ) {
+                            AppIcon(app = app, size = 96.dp)
+                        }
+                        Spacer(Modifier.height(14.dp))
+                        BasicText(
+                            text = app.label,
+                            style = TextStyle(
+                                color = labelColor,
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                        Spacer(Modifier.height(20.dp))
+                        PillButton(
+                            text = "更换图片",
+                            color = labelColor,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             pick.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
                         }
-                    ) {
-                        AppIcon(app = app, size = 96.dp)
-                    }
-                    Spacer(Modifier.height(14.dp))
-                    BasicText(
-                        text = app.label,
-                        style = TextStyle(
-                            color = labelColor,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                    Spacer(Modifier.height(20.dp))
-                    PillButton(
-                        text = "更换图片",
-                        color = labelColor,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        pick.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    }
-                    Spacer(Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        PillButton(
-                            text = "恢复默认",
-                            color = labelColor,
-                            modifier = Modifier.weight(1f),
-                            enabled = store.iconOf(app) != null
-                        ) { store.resetIcon(app) }
-                        PillButton(
-                            text = "完成",
-                            color = labelColor,
-                            modifier = Modifier.weight(1f)
-                        ) { requestClose() }
+                        Spacer(Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            PillButton(
+                                text = "恢复默认",
+                                color = labelColor,
+                                modifier = Modifier.weight(1f),
+                                enabled = store.iconOf(app) != null
+                            ) { store.resetIcon(app) }
+                            PillButton(
+                                text = "完成",
+                                color = labelColor,
+                                modifier = Modifier.weight(1f)
+                            ) { requestClose() }
+                        }
                     }
                 }
             }

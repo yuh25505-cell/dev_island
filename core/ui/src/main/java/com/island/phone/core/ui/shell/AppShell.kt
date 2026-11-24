@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.island.phone.core.ui.appearance.AppearanceStore
 import com.island.phone.core.ui.appearance.drawImageCover
 import com.island.phone.core.ui.glass.GlassSurface
+import com.island.phone.core.ui.glass.OwnBackdrop
 import com.island.phone.core.ui.glass.glassPressable
 import com.island.phone.core.ui.theme.IslandTheme
 
@@ -81,8 +82,10 @@ fun AppShell(
     content: @Composable BoxScope.() -> Unit = {},
 ) {
     val label = IslandTheme.icon.label
-    Box(modifier = modifier.fillMaxSize()) {
-        IslandWallpaper(modifier = Modifier.fillMaxSize())
+    OwnBackdrop(
+        modifier = modifier.fillMaxSize(),
+        source = { IslandWallpaper(modifier = Modifier.fillMaxSize()) }
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
