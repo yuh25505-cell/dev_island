@@ -26,11 +26,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.island.phone.core.ui.appearance.AppearanceStore
+import com.island.phone.core.ui.appearance.drawImageCover
 import com.island.phone.core.ui.glass.GlassSurface
 import com.island.phone.core.ui.glass.glassPressable
 import com.island.phone.core.ui.theme.IslandTheme
@@ -38,13 +41,20 @@ import com.island.phone.core.ui.theme.IslandTheme
 @Composable
 fun IslandWallpaper(modifier: Modifier = Modifier) {
     val tokens = IslandTheme.wallpaper
+    val dark = IslandTheme.dark
+    val custom = AppearanceStore.get(LocalContext.current).wallpaper
     Box(
         modifier = modifier.drawBehind {
-            drawRect(Brush.verticalGradient(listOf(tokens.top, tokens.bottom)))
-            val base = size.minDimension
-            blob(tokens.blobA, Offset(size.width * 0.2f, size.height * 0.22f), base * 0.75f)
-            blob(tokens.blobB, Offset(size.width * 0.85f, size.height * 0.5f), base * 0.8f)
-            blob(tokens.blobC, Offset(size.width * 0.3f, size.height * 0.85f), base * 0.7f)
+            if (custom != null) {
+                drawImageCover(custom)
+                if (dark) drawRect(Color.Black.copy(alpha = 0.3f))
+            } else {
+                drawRect(Brush.verticalGradient(listOf(tokens.top, tokens.bottom)))
+                val base = size.minDimension
+                blob(tokens.blobA, Offset(size.width * 0.2f, size.height * 0.22f), base * 0.75f)
+                blob(tokens.blobB, Offset(size.width * 0.85f, size.height * 0.5f), base * 0.8f)
+                blob(tokens.blobC, Offset(size.width * 0.3f, size.height * 0.85f), base * 0.7f)
+            }
         }
     )
 }
@@ -66,6 +76,7 @@ fun AppShell(
     title: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    overlay: @Composable BoxScope.() -> Unit = {},
     content: @Composable BoxScope.() -> Unit = {},
 ) {
     val label = IslandTheme.icon.label
@@ -124,5 +135,6 @@ fun AppShell(
                 )
             )
         }
+        Box(modifier = Modifier.fillMaxSize(), content = overlay)
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,8 +37,11 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.island.phone.core.ui.apps.AppId
+import com.island.phone.core.ui.apps.LocalAppPages
 import com.island.phone.core.ui.icons.AppIcon
 import com.island.phone.core.ui.shell.AppShell
+import com.island.phone.core.ui.shell.LocalShellOverlay
+import com.island.phone.core.ui.shell.ShellOverlayState
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
@@ -78,6 +82,7 @@ private fun AppLauncherLayer(app: AppId, launcher: LauncherState) {
     val open = remember(app) { Animatable(0f) }
     var closing by remember(app) { mutableStateOf(false) }
     var backTarget by remember(app) { mutableStateOf(0f) }
+    val overlayState = remember(app) { ShellOverlayState() }
     val back by animateFloatAsState(
         targetValue = backTarget,
         animationSpec = spring(stiffness = Spring.StiffnessHigh),
@@ -161,7 +166,9 @@ private fun AppLauncherLayer(app: AppId, launcher: LauncherState) {
                         .requiredSize(areaW, areaH)
                         .graphicsLayer { alpha = smooth((open.value - 0.15f) / 0.5f) }
                 ) {
-                    AppShellPage(app = app, onBack = { closing = true })
+                    CompositionLocalProvider(LocalShellOverlay provides overlayState) {
+                        AppShellPage(app = app, onBack = { closing = true })
+                    }
                 }
                 Box(
                     modifier = Modifier
@@ -178,7 +185,7 @@ private fun AppLauncherLayer(app: AppId, launcher: LauncherState) {
                 }
             }
         }
-        if (!closing) {
+        if (!closing && overlayState.count == 0) {
             EdgeStrip(
                 modifier = Modifier.align(Alignment.CenterStart),
                 sign = 1,
@@ -232,9 +239,14 @@ private fun EdgeStrip(
 
 @Composable
 private fun AppShellPage(app: AppId, onBack: () -> Unit) {
-    AppShell(title = app.label, onBack = onBack) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            AppIcon(app = app, size = 96.dp)
+    val page = LocalAppPages.current[app]
+    if (page != null) {
+        page(onBack)
+    } else {
+        AppShell(title = app.label, onBack = onBack) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                AppIcon(app = app, size = 96.dp)
+            }
         }
     }
 }

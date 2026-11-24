@@ -20,11 +20,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.island.phone.core.ui.appearance.AppearanceStore
+import com.island.phone.core.ui.appearance.drawImageCover
 import com.island.phone.core.ui.apps.AppId
 import com.island.phone.core.ui.glass.GlassSurface
 import com.island.phone.core.ui.theme.IslandTheme
@@ -33,6 +36,7 @@ import com.island.phone.core.ui.theme.IslandTheme
 fun FolderIcon(apps: List<AppId>, modifier: Modifier = Modifier, size: Dp = 60.dp) {
     val icon = IslandTheme.icon
     val folder = IslandTheme.folder
+    val store = AppearanceStore.get(LocalContext.current)
     val gap = size * 0.04f
     GlassSurface(
         modifier = modifier.size(size),
@@ -53,6 +57,7 @@ fun FolderIcon(apps: List<AppId>, modifier: Modifier = Modifier, size: Dp = 60.d
                 ) {
                     for (c in 0 until 3) {
                         val app = apps.getOrNull(r * 3 + c)
+                        val custom = if (app == null) null else store.iconOf(app)
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -65,7 +70,11 @@ fun FolderIcon(apps: List<AppId>, modifier: Modifier = Modifier, size: Dp = 60.d
                                             .clip(RoundedCornerShape(percent = 26))
                                             .drawBehind {
                                                 drawRect(folder.miniTile)
-                                                drawAppGlyph(app, icon.glyph)
+                                                if (custom != null) {
+                                                    drawImageCover(custom)
+                                                } else {
+                                                    drawAppGlyph(app, icon.glyph)
+                                                }
                                             }
                                     }
                                 )

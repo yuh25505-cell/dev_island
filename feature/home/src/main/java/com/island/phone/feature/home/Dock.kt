@@ -1,5 +1,7 @@
 package com.island.phone.feature.home
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -96,7 +99,17 @@ fun Dock(state: HomeState, modifier: Modifier = Modifier) {
                 .padding(horizontal = 20.dp),
             contentAlignment = Alignment.Center
         ) {
-            val slot = minOf(maxWidth / DockCapacity, 78.dp)
+            val count = state.dock.size.coerceAtLeast(1)
+            val targetSlot = if (count >= DockCapacity) {
+                minOf(maxWidth / DockCapacity, 78.dp)
+            } else {
+                minOf(maxWidth * 1.2f / (count + 0.9f), maxWidth / count)
+            }
+            val slot by animateDpAsState(
+                targetValue = targetSlot,
+                animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f),
+                label = "dockSlot"
+            )
             val slotPx = with(density) { slot.toPx() }
             SideEffect { state.dockSlotPx = slotPx }
             Row(verticalAlignment = Alignment.CenterVertically) {

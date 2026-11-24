@@ -19,3 +19,4 @@ rootProject.name = "island-iphone"
 include(":app")
 include(":core:ui")
 include(":feature:home")
+include(":feature:appearance")
