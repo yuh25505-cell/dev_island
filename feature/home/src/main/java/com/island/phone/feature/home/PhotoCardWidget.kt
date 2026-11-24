@@ -1,10 +1,8 @@
 package com.island.phone.feature.home
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -36,7 +34,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -223,10 +220,6 @@ private fun CardBottomBar(u: Float, color: Color) {
             path.close()
             drawPath(path, color, style = glyphStroke(this))
         }
-        Spacer(Modifier.weight(1f))
-        CardPill("Edit", u, color)
-        Spacer(Modifier.width((u * 0.03f).dp))
-        CardPill("Send", u, color)
     }
 }
 
@@ -235,24 +228,3 @@ private fun glyphStroke(scope: androidx.compose.ui.graphics.drawscope.DrawScope)
     cap = StrokeCap.Round,
     join = StrokeJoin.Round
 )
-
-@Composable
-private fun CardPill(text: String, u: Float, color: Color) {
-    Box(
-        modifier = Modifier
-            .width((u * 0.19f).dp)
-            .height((u * 0.07f).dp)
-            .border(BorderStroke(0.8.dp, color), RoundedCornerShape(50)),
-        contentAlignment = Alignment.Center
-    ) {
-        BasicText(
-            text = text,
-            maxLines = 1,
-            style = TextStyle(
-                color = color,
-                fontSize = (u * 0.04f).sp,
-                textAlign = TextAlign.Center
-            )
-        )
-    }
-}

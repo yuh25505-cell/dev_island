@@ -55,6 +55,9 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             if (state.photoCardOpen) {
                 PhotoCardEditor(state = state)
             }
+            if (state.vinylOpen) {
+                VinylEditor(state = state)
+            }
         }
     }
 }

@@ -166,8 +166,11 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                     detectTapGestures { pos ->
                         val page = pagerState.currentPage
                         val tapped = widgetHit(state, page, pos, size.width)
-                        if (tapped != null && tapped.kind == WidgetKind.PHOTOCARD && !state.editing) {
+                        val tappedKind = if (!state.editing) tapped?.kind else null
+                        if (tappedKind == WidgetKind.PHOTOCARD) {
                             state.photoCardOpen = true
+                        } else if (tappedKind == WidgetKind.VINYL) {
+                            state.vinylOpen = true
                         } else {
                             val cell = cellAt(pos, size.width)
                             val index = state.itemIndexAt(page, cell.row, cell.col)

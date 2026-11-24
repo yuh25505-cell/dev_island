@@ -6,6 +6,7 @@ enum class WidgetKind(val cols: Int, val rows: Int, val title: String) {
     WEATHER(2, 2, "天气"),
     COUNTDOWN(2, 2, "倒数日"),
     PHOTOCARD(2, 2, "拾光"),
+    VINYL(2, 2, "唱片"),
 }
 
 data class WidgetPlacement(

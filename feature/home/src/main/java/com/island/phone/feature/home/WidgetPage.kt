@@ -50,6 +50,7 @@ fun WidgetContent(kind: WidgetKind, modifier: Modifier = Modifier) {
         WidgetKind.WEATHER -> WeatherWidget(modifier)
         WidgetKind.COUNTDOWN -> CountdownWidget(modifier)
         WidgetKind.PHOTOCARD -> PhotoCardWidget(modifier)
+        WidgetKind.VINYL -> VinylWidget(modifier)
     }
 }
 
