@@ -30,12 +30,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import com.island.phone.core.ui.appearance.AppearanceStore
 import com.island.phone.core.ui.apps.AppId
 import com.island.phone.core.ui.apps.LocalAppPages
 import com.island.phone.core.ui.icons.AppIcon
@@ -78,26 +80,36 @@ private fun smooth(t: Float): Float {
 @Composable
 private fun AppLauncherLayer(app: AppId, launcher: LauncherState) {
     val density = LocalDensity.current
+    val animate = AppearanceStore.get(LocalContext.current).pageAnimation
     val origin = launcher.origin
-    val open = remember(app) { Animatable(0f) }
+    val open = remember(app) { Animatable(if (animate) 0f else 1f) }
     var closing by remember(app) { mutableStateOf(false) }
     var backTarget by remember(app) { mutableStateOf(0f) }
     val overlayState = remember(app) { ShellOverlayState() }
-    val back by animateFloatAsState(
+    val backAnimated by animateFloatAsState(
         targetValue = backTarget,
         animationSpec = spring(stiffness = Spring.StiffnessHigh),
         label = "appBack"
     )
+    val back = if (animate) backAnimated else 0f
     var rootOrigin by remember { mutableStateOf(Offset.Zero) }
     var area by remember { mutableStateOf(IntSize.Zero) }
 
     LaunchedEffect(app) {
-        open.animateTo(1f, spring(dampingRatio = 0.9f, stiffness = 300f))
+        if (animate) {
+            open.animateTo(1f, spring(dampingRatio = 0.9f, stiffness = 300f))
+        } else {
+            open.snapTo(1f)
+        }
     }
     LaunchedEffect(closing) {
         if (closing) {
             backTarget = 0f
-            open.animateTo(0f, spring(dampingRatio = 1f, stiffness = 420f))
+            if (animate) {
+                open.animateTo(0f, spring(dampingRatio = 1f, stiffness = 420f))
+            } else {
+                open.snapTo(0f)
+            }
             launcher.close()
         }
     }

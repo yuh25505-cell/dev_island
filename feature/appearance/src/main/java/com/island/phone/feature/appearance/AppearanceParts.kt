@@ -1,5 +1,8 @@
 package com.island.phone.feature.appearance
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,24 +14,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
@@ -157,7 +159,6 @@ private fun Chevron(color: Color) {
 internal fun EntryRow(
     title: String,
     color: Color,
-    tile: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     trailing: (@Composable () -> Unit)? = null,
     onClick: () -> Unit,
@@ -166,11 +167,9 @@ internal fun EntryRow(
         modifier = modifier
             .fillMaxWidth()
             .glassPressable(onClick)
-            .padding(vertical = 6.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        tile()
-        Spacer(Modifier.width(14.dp))
         BasicText(
             text = title,
             modifier = Modifier.weight(1f),
@@ -185,25 +184,55 @@ internal fun EntryRow(
 }
 
 @Composable
-private fun GlyphTile(top: Color, bottom: Color, glyph: DrawScope.() -> Unit) {
+private fun GlassSwitch(checked: Boolean, offColor: Color) {
+    val travel by animateDpAsState(
+        targetValue = if (checked) 20.dp else 0.dp,
+        animationSpec = spring(dampingRatio = 0.7f, stiffness = 500f),
+        label = "switchThumb"
+    )
+    val track by animateColorAsState(
+        targetValue = if (checked) Color(0xFF34C759) else offColor.copy(alpha = 0.18f),
+        label = "switchTrack"
+    )
     Box(
         modifier = Modifier
-            .size(40.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Brush.verticalGradient(listOf(top, bottom)))
+            .size(width = 52.dp, height = 32.dp)
+            .clip(CircleShape)
+            .background(track)
+            .padding(2.dp)
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) { glyph() }
+        Box(
+            modifier = Modifier
+                .offset(x = travel)
+                .size(28.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+        )
     }
 }
 
 @Composable
-internal fun WallpaperTile() {
-    GlyphTile(Color(0xFF8DB6FF), Color(0xFFB9E2FF)) { drawPictureGlyph() }
-}
-
-@Composable
-internal fun IconsTile() {
-    GlyphTile(Color(0xFFFF9FC0), Color(0xFFFFC8A6)) { drawGridGlyph() }
+internal fun SwitchRow(
+    title: String,
+    color: Color,
+    checked: Boolean,
+    modifier: Modifier = Modifier,
+    onChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .glassPressable { onChange(!checked) }
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        BasicText(
+            text = title,
+            modifier = Modifier.weight(1f),
+            style = TextStyle(color = color, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+        )
+        GlassSwitch(checked = checked, offColor = color)
+    }
 }
 
 @Composable
@@ -216,44 +245,5 @@ internal fun WallpaperThumb(borderColor: Color) {
             .border(1.dp, borderColor, shape)
     ) {
         IslandWallpaper(modifier = Modifier.fillMaxSize(), useCustom = true)
-    }
-}
-
-private fun DrawScope.drawPictureGlyph() {
-    val w = size.width
-    val h = size.height
-    val stroke = Stroke(width = 2.2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-    drawRoundRect(
-        color = Color.White,
-        topLeft = Offset(w * 0.2f, h * 0.22f),
-        size = Size(w * 0.6f, h * 0.56f),
-        cornerRadius = CornerRadius(5.dp.toPx()),
-        style = stroke
-    )
-    drawCircle(color = Color.White, radius = w * 0.055f, center = Offset(w * 0.38f, h * 0.4f))
-    val mountain = Path().apply {
-        moveTo(w * 0.24f, h * 0.7f)
-        lineTo(w * 0.42f, h * 0.55f)
-        lineTo(w * 0.53f, h * 0.64f)
-        lineTo(w * 0.62f, h * 0.54f)
-        lineTo(w * 0.76f, h * 0.68f)
-    }
-    drawPath(path = mountain, color = Color.White, style = stroke)
-}
-
-private fun DrawScope.drawGridGlyph() {
-    val w = size.width
-    val h = size.height
-    val cell = Size(w * 0.22f, w * 0.22f)
-    val radius = CornerRadius(w * 0.06f)
-    listOf(0.27f, 0.51f).forEach { x ->
-        listOf(0.27f, 0.51f).forEach { y ->
-            drawRoundRect(
-                color = Color.White,
-                topLeft = Offset(w * x, h * y),
-                size = cell,
-                cornerRadius = radius
-            )
-        }
     }
 }

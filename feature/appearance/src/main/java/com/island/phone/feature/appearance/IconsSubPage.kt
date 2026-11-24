@@ -40,29 +40,31 @@ import kotlin.coroutines.cancellation.CancellationException
 @Composable
 internal fun IconsSubPage(store: AppearanceStore, onClose: () -> Unit) {
     val labelColor = IslandTheme.icon.label
+    val animate = store.pageAnimation
     val apps = remember { AppId.entries.filter { !it.adminOnly } }
     var editing by remember { mutableStateOf<AppId?>(null) }
-    var shown by remember { mutableStateOf(false) }
+    var shown by remember { mutableStateOf(!animate) }
     var closing by remember { mutableStateOf(false) }
     var backProgress by remember { mutableStateOf(0f) }
     HoldShellEdgeBack()
 
     LaunchedEffect(Unit) { shown = true }
-    val appear by animateFloatAsState(
+    val appearAnimated by animateFloatAsState(
         targetValue = if (shown && !closing) 1f else 0f,
         animationSpec = spring(dampingRatio = 0.9f, stiffness = 380f),
         label = "iconsPageAppear"
     )
+    val appear = if (animate) appearAnimated else 1f
     LaunchedEffect(closing) {
         if (closing) {
-            delay(220)
+            if (animate) delay(220)
             onClose()
         }
     }
 
     PredictiveBackHandler(enabled = !closing) { progress ->
         try {
-            progress.collect { backProgress = it.progress }
+            progress.collect { if (animate) backProgress = it.progress }
             closing = true
         } catch (e: CancellationException) {
             backProgress = 0f
@@ -73,7 +75,11 @@ internal fun IconsSubPage(store: AppearanceStore, onClose: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer {
-                translationX = (1f - appear) * size.width + backProgress * size.width * 0.08f
+                translationX = if (animate) {
+                    (1f - appear) * size.width + backProgress * size.width * 0.08f
+                } else {
+                    0f
+                }
             }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },

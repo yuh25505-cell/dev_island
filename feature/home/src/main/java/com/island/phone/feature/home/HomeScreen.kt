@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.island.phone.core.ui.glass.LocalBackdrop
+import com.island.phone.core.ui.glass.PopupBackdrop
 import com.island.phone.core.ui.glass.backdropSource
 import com.island.phone.core.ui.glass.rememberBackdropState
 import com.island.phone.core.ui.theme.IslandDesktopTheme
@@ -65,13 +66,19 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 }
                 val openFolder = state.openFolder
                 if (openFolder != null) {
-                    FolderPopup(folder = openFolder, state = state)
+                    PopupBackdrop(modifier = Modifier.fillMaxSize()) {
+                        FolderPopup(folder = openFolder, state = state)
+                    }
                 }
                 if (state.photoCardOpen) {
-                    PhotoCardEditor(state = state)
+                    PopupBackdrop(modifier = Modifier.fillMaxSize()) {
+                        PhotoCardEditor(state = state)
+                    }
                 }
                 if (state.vinylOpen) {
-                    VinylEditor(state = state)
+                    PopupBackdrop(modifier = Modifier.fillMaxSize()) {
+                        VinylEditor(state = state)
+                    }
                 }
             }
             AppLauncher(launcher = launcher)

@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlurEffect
@@ -23,6 +24,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.island.phone.core.ui.theme.IslandTheme
 
 class BackdropState internal constructor(
     val raw: GraphicsLayer,
@@ -57,6 +59,13 @@ fun Modifier.backdropSource(state: BackdropState): Modifier = this
         drawLayer(state.raw)
     }
 
+fun Modifier.backdropRecordOnly(state: BackdropState): Modifier = this
+    .onGloballyPositioned { state.origin = it.positionInRoot() }
+    .drawWithContent {
+        state.raw.record { this@drawWithContent.drawContent() }
+        state.blurred.record { drawLayer(state.raw) }
+    }
+
 @Composable
 fun OwnBackdrop(
     modifier: Modifier = Modifier,
@@ -67,6 +76,26 @@ fun OwnBackdrop(
     val state = rememberBackdropState(blurRadius)
     Box(modifier = modifier) {
         Box(modifier = Modifier.matchParentSize().backdropSource(state), content = source)
+        CompositionLocalProvider(LocalBackdrop provides state) {
+            content()
+        }
+    }
+}
+
+@Composable
+fun PopupBackdrop(
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit,
+) {
+    val base = IslandTheme.wallpaper.top
+    val state = rememberBackdropState()
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .backdropRecordOnly(state)
+                .drawBehind { drawRect(base) }
+        )
         CompositionLocalProvider(LocalBackdrop provides state) {
             content()
         }

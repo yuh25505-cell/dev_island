@@ -62,7 +62,6 @@ fun AppearancePage(onBack: () -> Unit) {
                     EntryRow(
                         title = "主页背景",
                         color = labelColor,
-                        tile = { WallpaperTile() },
                         trailing = { WallpaperThumb(borderColor = labelColor.copy(alpha = 0.15f)) }
                     ) { launchWallpaperPicker() }
                 }
@@ -70,9 +69,16 @@ fun AppearancePage(onBack: () -> Unit) {
                 SettingCard(title = "图标", titleColor = labelColor) {
                     EntryRow(
                         title = "应用图标",
-                        color = labelColor,
-                        tile = { IconsTile() }
+                        color = labelColor
                     ) { iconsOpen = true }
+                }
+                Spacer(Modifier.height(16.dp))
+                SettingCard(title = "动画", titleColor = labelColor) {
+                    SwitchRow(
+                        title = "进出与返回动画",
+                        color = labelColor,
+                        checked = store.pageAnimation
+                    ) { store.setPageAnimation(it) }
                 }
             }
         }

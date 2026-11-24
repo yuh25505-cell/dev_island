@@ -20,7 +20,11 @@ import java.io.File
 class AppearanceStore private constructor(context: Context) {
     private val dir: File = context.filesDir
     private val resolver = context.contentResolver
+    private val prefs = context.getSharedPreferences("appearance_prefs", Context.MODE_PRIVATE)
     private val initialWallpaper: Bitmap? = readBitmap(wallpaperFile())
+
+    var pageAnimation by mutableStateOf(prefs.getBoolean(KeyPageAnimation, true))
+        private set
 
     var wallpaper by mutableStateOf<ImageBitmap?>(initialWallpaper?.asImageBitmap())
         private set
@@ -38,6 +42,11 @@ class AppearanceStore private constructor(context: Context) {
         get() = icons.isNotEmpty()
 
     fun iconOf(app: AppId): ImageBitmap? = icons[app]
+
+    fun setPageAnimation(enabled: Boolean) {
+        pageAnimation = enabled
+        prefs.edit().putBoolean(KeyPageAnimation, enabled).apply()
+    }
 
     suspend fun importWallpaper(uri: Uri): Boolean {
         val bitmap = withContext(Dispatchers.IO) {
@@ -173,6 +182,7 @@ class AppearanceStore private constructor(context: Context) {
         private const val WallpaperMaxSide = 2048
         private const val IconDecodeSide = 1024
         private const val IconMaxSide = 512
+        private const val KeyPageAnimation = "page_animation"
 
         @Volatile
         private var instance: AppearanceStore? = null
