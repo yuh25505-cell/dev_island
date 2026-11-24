@@ -1,6 +1,5 @@
 package com.island.phone.feature.appearance
 
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,6 +26,7 @@ import com.island.phone.core.ui.appearance.AppearanceStore
 import com.island.phone.core.ui.shell.AppShell
 import com.island.phone.core.ui.text.BasicText
 import com.island.phone.core.ui.theme.IslandTheme
+import com.island.phone.core.ui.theme.ThemeMode
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,21 +37,13 @@ fun AppearancePage(onBack: () -> Unit) {
     val labelColor = IslandTheme.icon.label
     var iconsOpen by remember { mutableStateOf(false) }
     var fontsOpen by remember { mutableStateOf(false) }
+    var emojiOpen by remember { mutableStateOf(false) }
 
     val pickWallpaper = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) scope.launch { store.importWallpaper(uri) }
     }
     val launchWallpaperPicker = {
         pickWallpaper.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-    }
-    val pickEmoji = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) {
-            scope.launch {
-                if (!store.importEmoji(uri)) {
-                    Toast.makeText(context, "这个字体文件用不了", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -63,6 +55,27 @@ fun AppearancePage(onBack: () -> Unit) {
                     .padding(horizontal = 16.dp)
                     .padding(top = 8.dp, bottom = 24.dp)
             ) {
+                SettingCard(title = "显示模式", titleColor = labelColor) {
+                    ChoiceRow(
+                        title = "跟随系统",
+                        color = labelColor,
+                        selected = store.themeMode == ThemeMode.FOLLOW_SYSTEM,
+                        onDelete = null
+                    ) { store.setThemeMode(ThemeMode.FOLLOW_SYSTEM) }
+                    ChoiceRow(
+                        title = "日间",
+                        color = labelColor,
+                        selected = store.themeMode == ThemeMode.DAY,
+                        onDelete = null
+                    ) { store.setThemeMode(ThemeMode.DAY) }
+                    ChoiceRow(
+                        title = "夜间",
+                        color = labelColor,
+                        selected = store.themeMode == ThemeMode.NIGHT,
+                        onDelete = null
+                    ) { store.setThemeMode(ThemeMode.NIGHT) }
+                }
+                Spacer(Modifier.height(16.dp))
                 SettingCard(
                     title = "壁纸",
                     titleColor = labelColor,
@@ -128,7 +141,7 @@ fun AppearancePage(onBack: () -> Unit) {
                                 style = TextStyle(fontSize = 17.sp)
                             )
                         }
-                    ) { pickEmoji.launch(arrayOf("*/*")) }
+                    ) { emojiOpen = true }
                 }
                 Spacer(Modifier.height(16.dp))
                 SettingCard(title = "动画", titleColor = labelColor) {
@@ -145,6 +158,9 @@ fun AppearancePage(onBack: () -> Unit) {
         }
         if (fontsOpen) {
             FontsSubPage(store = store, onClose = { fontsOpen = false })
+        }
+        if (emojiOpen) {
+            EmojiSubPage(store = store, onClose = { emojiOpen = false })
         }
     }
 }

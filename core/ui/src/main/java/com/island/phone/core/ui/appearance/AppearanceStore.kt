@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.island.phone.core.ui.apps.AppId
+import com.island.phone.core.ui.theme.ThemeMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -33,6 +34,7 @@ class AppearanceStore private constructor(context: Context) {
     private val fontsDir: File = File(context.filesDir, "appearance_fonts").also { it.mkdirs() }
     private val resolver = context.contentResolver
     private val prefs = context.getSharedPreferences("appearance_prefs", Context.MODE_PRIVATE)
+    private val legacyThemePrefs = context.getSharedPreferences("island_settings", Context.MODE_PRIVATE)
     private val initialWallpaper: Bitmap? = readBitmap(wallpaperFile())
 
     private var pageAnimationState by mutableStateOf(prefs.getBoolean(KeyPageAnimation, true))
@@ -40,15 +42,25 @@ class AppearanceStore private constructor(context: Context) {
     val pageAnimation: Boolean
         get() = pageAnimationState
 
+    private var themeModeState by mutableStateOf(readThemeMode())
+
+    val themeMode: ThemeMode
+        get() = themeModeState
+
     private val fontList = mutableStateListOf<FontEntry>()
 
     val fonts: List<FontEntry>
         get() = fontList
 
+    private val emojiList = mutableStateListOf<FontEntry>()
+
+    val emojis: List<FontEntry>
+        get() = emojiList
+
     var activeFontId by mutableStateOf<String?>(null)
         private set
 
-    var emojiFontName by mutableStateOf<String?>(null)
+    var activeEmojiId by mutableStateOf<String?>(null)
         private set
 
     var fontFamily by mutableStateOf<FontFamily?>(null)
@@ -77,13 +89,21 @@ class AppearanceStore private constructor(context: Context) {
         get() = activeFontId != null
 
     val hasEmojiFont: Boolean
-        get() = emojiFontName != null
+        get() = activeEmojiId != null
+
+    val emojiFontName: String?
+        get() = activeEmojiId?.let { id -> emojiList.firstOrNull { it.id == id }?.name }
 
     fun iconOf(app: AppId): ImageBitmap? = icons[app]
 
     fun setPageAnimation(enabled: Boolean) {
         pageAnimationState = enabled
         prefs.edit().putBoolean(KeyPageAnimation, enabled).apply()
+    }
+
+    fun setThemeMode(mode: ThemeMode) {
+        themeModeState = mode
+        prefs.edit().putString(KeyThemeMode, mode.name).apply()
     }
 
     suspend fun importFont(uri: Uri): Boolean {
@@ -120,20 +140,34 @@ class AppearanceStore private constructor(context: Context) {
     }
 
     suspend fun importEmoji(uri: Uri): Boolean {
-        if (!copyFontTo(uri, emojiFile())) return false
-        emojiFontName = withContext(Dispatchers.IO) { displayName(uri) } ?: "表情字体"
+        val id = System.currentTimeMillis().toString()
+        if (!copyFontTo(uri, emojiFile(id))) return false
+        val name = withContext(Dispatchers.IO) { displayName(uri) } ?: "表情字体 ${emojiList.size + 1}"
+        emojiList.add(FontEntry(id, name))
+        activeEmojiId = id
         rebuildFamily()
         if (fontFamily == null) {
-            resetEmoji()
+            removeEmoji(id)
             return false
         }
         saveFonts()
         return true
     }
 
+    fun selectEmoji(id: String?) {
+        activeEmojiId = id?.takeIf { target -> emojiList.any { it.id == target } }
+        rebuildFamily()
+        saveFonts()
+    }
+
     fun resetEmoji() {
-        emojiFile().delete()
-        emojiFontName = null
+        selectEmoji(null)
+    }
+
+    fun removeEmoji(id: String) {
+        emojiFile(id).delete()
+        emojiList.removeAll { it.id == id }
+        if (activeEmojiId == id) activeEmojiId = null
         rebuildFamily()
         saveFonts()
     }
@@ -208,7 +242,15 @@ class AppearanceStore private constructor(context: Context) {
 
     private fun fontFile(id: String) = File(fontsDir, "font_$id.ttf")
 
-    private fun emojiFile() = File(fontsDir, "emoji.ttf")
+    private fun oldEmojiFile() = File(fontsDir, "emoji.ttf")
+
+    private fun emojiFile(id: String) = File(fontsDir, "emoji_$id.ttf")
+
+    private fun readThemeMode(): ThemeMode {
+        val saved = prefs.getString(KeyThemeMode, null)
+            ?: legacyThemePrefs.getString(LegacyKeyThemeMode, null)
+        return ThemeMode.entries.firstOrNull { it.name == saved } ?: ThemeMode.FOLLOW_SYSTEM
+    }
 
     private fun displayName(uri: Uri): String? {
         return try {
@@ -252,26 +294,31 @@ class AppearanceStore private constructor(context: Context) {
     private fun restoreFonts() {
         loadSavedFonts()
         migrateOldFont()
+        migrateOldEmoji()
         rebuildFamily()
     }
 
-    private fun loadSavedFonts() {
-        val json = prefs.getString(KeyFonts, null)
-        if (json != null) {
-            try {
-                val array = JSONArray(json)
-                for (i in 0 until array.length()) {
-                    val item = array.getJSONObject(i)
-                    val id = item.getString("id")
-                    if (fontFile(id).exists()) fontList.add(FontEntry(id, item.getString("name")))
-                }
-            } catch (e: Exception) {
-                fontList.clear()
+    private fun readEntries(json: String?, exists: (String) -> Boolean, into: MutableList<FontEntry>) {
+        if (json == null) return
+        try {
+            val array = JSONArray(json)
+            for (i in 0 until array.length()) {
+                val item = array.getJSONObject(i)
+                val id = item.getString("id")
+                if (exists(id)) into.add(FontEntry(id, item.getString("name")))
             }
+        } catch (e: Exception) {
+            into.clear()
         }
+    }
+
+    private fun loadSavedFonts() {
+        readEntries(prefs.getString(KeyFonts, null), { fontFile(it).exists() }, fontList)
         val active = prefs.getString(KeyActiveFont, null)
         activeFontId = active?.takeIf { target -> fontList.any { it.id == target } }
-        emojiFontName = prefs.getString(KeyEmojiName, null)?.takeIf { emojiFile().exists() }
+        readEntries(prefs.getString(KeyEmojis, null), { emojiFile(it).exists() }, emojiList)
+        val activeEmoji = prefs.getString(KeyActiveEmoji, null)
+        activeEmojiId = activeEmoji?.takeIf { target -> emojiList.any { it.id == target } }
     }
 
     private fun migrateOldFont() {
@@ -285,13 +332,29 @@ class AppearanceStore private constructor(context: Context) {
         }
     }
 
+    private fun migrateOldEmoji() {
+        val old = oldEmojiFile()
+        if (!old.exists() || prefs.contains(KeyEmojis)) return
+        val id = "legacy"
+        if (old.renameTo(emojiFile(id))) {
+            val name = prefs.getString(KeyEmojiName, null) ?: "表情字体"
+            emojiList.add(FontEntry(id, name))
+            activeEmojiId = id
+            saveFonts()
+        }
+    }
+
     private fun saveFonts() {
-        val array = JSONArray()
-        fontList.forEach { array.put(JSONObject().put("id", it.id).put("name", it.name)) }
+        val fontArray = JSONArray()
+        fontList.forEach { fontArray.put(JSONObject().put("id", it.id).put("name", it.name)) }
+        val emojiArray = JSONArray()
+        emojiList.forEach { emojiArray.put(JSONObject().put("id", it.id).put("name", it.name)) }
         prefs.edit()
-            .putString(KeyFonts, array.toString())
+            .putString(KeyFonts, fontArray.toString())
             .putString(KeyActiveFont, activeFontId)
-            .putString(KeyEmojiName, emojiFontName)
+            .putString(KeyEmojis, emojiArray.toString())
+            .putString(KeyActiveEmoji, activeEmojiId)
+            .remove(KeyEmojiName)
             .apply()
     }
 
@@ -301,7 +364,7 @@ class AppearanceStore private constructor(context: Context) {
 
     private fun buildFamily(): FontFamily? {
         val text = activeFontId?.let { fontFile(it) }?.takeIf { it.exists() }
-        val emoji = if (emojiFontName != null) emojiFile().takeIf { it.exists() } else null
+        val emoji = activeEmojiId?.let { emojiFile(it) }?.takeIf { it.exists() }
         if (text == null && emoji == null) return null
         return try {
             if (Build.VERSION.SDK_INT >= 29) {
@@ -401,8 +464,12 @@ class AppearanceStore private constructor(context: Context) {
         private const val IconDecodeSide = 1024
         private const val IconMaxSide = 512
         private const val KeyPageAnimation = "page_animation"
+        private const val KeyThemeMode = "theme_mode"
+        private const val LegacyKeyThemeMode = "theme_mode"
         private const val KeyFonts = "fonts_json"
         private const val KeyActiveFont = "font_active"
+        private const val KeyEmojis = "emojis_json"
+        private const val KeyActiveEmoji = "emoji_active"
         private const val KeyEmojiName = "emoji_font_name"
 
         @Volatile

@@ -1,5 +1,6 @@
 package com.island.phone.feature.appearance
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.island.phone.core.ui.appearance.AppearanceStore
+import com.island.phone.core.ui.appearance.FontEntry
 import com.island.phone.core.ui.glass.glassPressable
 import com.island.phone.core.ui.shell.AppShell
 import com.island.phone.core.ui.shell.HoldShellEdgeBack
@@ -54,6 +56,46 @@ import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
 internal fun FontsSubPage(store: AppearanceStore, onClose: () -> Unit) {
+    FontListSubPage(
+        store = store,
+        pageTitle = "全局字体",
+        cardTitle = "字体",
+        fonts = store.fonts,
+        activeId = store.activeFontId,
+        onSelect = { store.selectFont(it) },
+        onDelete = { store.removeFont(it) },
+        onImport = { store.importFont(it) },
+        onClose = onClose
+    )
+}
+
+@Composable
+internal fun EmojiSubPage(store: AppearanceStore, onClose: () -> Unit) {
+    FontListSubPage(
+        store = store,
+        pageTitle = "表情字体",
+        cardTitle = "表情",
+        fonts = store.emojis,
+        activeId = store.activeEmojiId,
+        onSelect = { store.selectEmoji(it) },
+        onDelete = { store.removeEmoji(it) },
+        onImport = { store.importEmoji(it) },
+        onClose = onClose
+    )
+}
+
+@Composable
+private fun FontListSubPage(
+    store: AppearanceStore,
+    pageTitle: String,
+    cardTitle: String,
+    fonts: List<FontEntry>,
+    activeId: String?,
+    onSelect: (String?) -> Unit,
+    onDelete: (String) -> Unit,
+    onImport: suspend (Uri) -> Boolean,
+    onClose: () -> Unit,
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val labelColor = IslandTheme.icon.label
@@ -66,7 +108,7 @@ internal fun FontsSubPage(store: AppearanceStore, onClose: () -> Unit) {
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             scope.launch {
-                if (!store.importFont(uri)) {
+                if (!onImport(uri)) {
                     Toast.makeText(context, "这个字体文件用不了", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -111,7 +153,7 @@ internal fun FontsSubPage(store: AppearanceStore, onClose: () -> Unit) {
                 indication = null
             ) { }
     ) {
-        AppShell(title = "全局字体", onBack = { closing = true }) {
+        AppShell(title = pageTitle, onBack = { closing = true }) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -119,20 +161,20 @@ internal fun FontsSubPage(store: AppearanceStore, onClose: () -> Unit) {
                     .padding(horizontal = 16.dp)
                     .padding(top = 8.dp, bottom = 24.dp)
             ) {
-                SettingCard(title = "字体", titleColor = labelColor) {
-                    FontRow(
+                SettingCard(title = cardTitle, titleColor = labelColor) {
+                    ChoiceRow(
                         title = "系统默认",
                         color = labelColor,
-                        selected = store.activeFontId == null,
+                        selected = activeId == null,
                         onDelete = null
-                    ) { store.selectFont(null) }
-                    store.fonts.forEach { entry ->
-                        FontRow(
+                    ) { onSelect(null) }
+                    fonts.forEach { entry ->
+                        ChoiceRow(
                             title = entry.name,
                             color = labelColor,
-                            selected = store.activeFontId == entry.id,
-                            onDelete = { store.removeFont(entry.id) }
-                        ) { store.selectFont(entry.id) }
+                            selected = activeId == entry.id,
+                            onDelete = { onDelete(entry.id) }
+                        ) { onSelect(entry.id) }
                     }
                 }
                 Spacer(Modifier.height(16.dp))
@@ -147,7 +189,7 @@ internal fun FontsSubPage(store: AppearanceStore, onClose: () -> Unit) {
 }
 
 @Composable
-private fun FontRow(
+internal fun ChoiceRow(
     title: String,
     color: Color,
     selected: Boolean,
