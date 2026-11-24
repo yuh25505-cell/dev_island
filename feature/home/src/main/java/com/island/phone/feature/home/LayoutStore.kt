@@ -37,7 +37,13 @@ object LayoutStore {
             o.put("c", w.col)
             widgets.put(o)
         }
-        return JSONObject().put("v", 1).put("items", items).put("widgets", widgets).toString()
+        val dock = JSONArray(state.dock.map { it.name })
+        return JSONObject()
+            .put("v", 2)
+            .put("items", items)
+            .put("widgets", widgets)
+            .put("dock", dock)
+            .toString()
     }
 
     fun save(context: Context, encoded: String) {
@@ -52,18 +58,29 @@ object LayoutStore {
             .getString(KEY, null) ?: return
         try {
             val root = JSONObject(raw)
-            val items = readItems(root.getJSONArray("items"))
+            val dockArr = root.optJSONArray("dock")
+            val dock = if (dockArr == null) DockApps else readDock(dockArr)
+            val items = readItems(root.getJSONArray("items"), dock)
             val widgets = readWidgets(root.getJSONArray("widgets"), state.widgets.toList())
-            state.restore(items, widgets)
+            state.restore(items, widgets, dock)
         } catch (e: Exception) {
         }
     }
 
     private fun appOf(name: String): AppId? = AppId.entries.firstOrNull { it.name == name }
 
-    private fun readItems(arr: JSONArray): List<HomeItem> {
-        val allowed = GridApps.toSet()
-        val seen = mutableSetOf<AppId>()
+    private fun readDock(arr: JSONArray): List<AppId> {
+        val out = mutableListOf<AppId>()
+        for (i in 0 until arr.length()) {
+            val app = appOf(arr.getString(i))
+            if (app != null && app !in out && out.size < DockCapacity) out.add(app)
+        }
+        return out
+    }
+
+    private fun readItems(arr: JSONArray, dock: List<AppId>): List<HomeItem> {
+        val allowed = AppId.entries.toSet()
+        val seen = dock.toMutableSet()
         val usedIds = mutableSetOf<Int>()
         val out = mutableListOf<HomeItem>()
         for (i in 0 until arr.length()) {
@@ -86,7 +103,7 @@ object LayoutStore {
                 }
             }
         }
-        GridApps.filter { it !in seen }.forEach { out.add(AppItem(it)) }
+        AppId.entries.filter { it !in seen }.forEach { out.add(AppItem(it)) }
         return out
     }
 

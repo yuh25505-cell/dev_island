@@ -13,6 +13,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -83,13 +84,62 @@ private fun Density.inCellCenter(pos: Offset, width: Int): Boolean {
     return x in 0.2f..0.8f && y in 6.dp.toPx()..56.dp.toPx()
 }
 
-private fun finishDrag(state: HomeState) {
+internal fun finishDrag(state: HomeState) {
     val dragged = state.dragging
     val hover = state.hoverKey
     if (dragged is AppItem && hover != null && state.mergeReady) {
         state.mergeInto(dragged, hover)
     }
     state.clearDrag()
+}
+
+internal fun Density.onItemDragMoved(state: HomeState) {
+    val dragged = state.dragging ?: return
+    val width = state.pagerWidth
+    if (dragged is AppItem) {
+        val rootPos = state.dragPos + state.pagerRoot
+        val d = state.dockRect
+        val zone = Rect(d.left, d.top - 16.dp.toPx(), d.right, d.bottom + 16.dp.toPx())
+        if (zone.contains(rootPos)) {
+            state.hoverKey = null
+            state.mergeReady = false
+            state.pendingMove = null
+            if (state.dock.contains(dragged.app)) {
+                state.moveInDock(dragged.app, state.dockSlotAt(rootPos.x, state.dock.size))
+            } else if (state.dock.size < DockCapacity) {
+                val gi = state.indexOfKey(dragged.key)
+                if (gi >= 0) state.items.removeAt(gi)
+                val slot = state.dockSlotAt(rootPos.x, state.dock.size + 1)
+                state.dock.add(slot.coerceIn(0, state.dock.size), dragged.app)
+            }
+            return
+        }
+        if (state.dock.contains(dragged.app)) {
+            state.dock.remove(dragged.app)
+            val c = cellAt(state.dragPos, width)
+            val at = (state.itemIndexAt(state.pagerPage, c.row, c.col) ?: state.items.size)
+                .coerceIn(0, state.items.size)
+            state.items.add(at, dragged)
+        }
+    }
+    val cell = cellAt(state.dragPos, width)
+    val index = state.itemIndexAt(state.pagerPage, cell.row, cell.col)
+    val target = if (index != null) state.items.getOrNull(index) else null
+    if (target != null &&
+        state.canMerge(dragged, target) &&
+        inCellCenter(state.dragPos, width)
+    ) {
+        state.pendingMove = null
+        if (state.hoverKey != target.key) {
+            state.hoverKey = target.key
+            state.mergeReady = false
+        }
+    } else {
+        state.hoverKey = null
+        state.mergeReady = false
+        val own = state.indexOfKey(dragged.key)
+        state.pendingMove = if (index != null && index != own) index else null
+    }
 }
 
 private fun Density.finishWidgetDrag(state: HomeState, page: Int, width: Int) {
@@ -117,6 +167,11 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     var boxWidth by remember { mutableStateOf(0) }
     var boxRoot by remember { mutableStateOf(Offset.Zero) }
+    SideEffect {
+        state.pagerPage = pagerState.currentPage
+        state.pagerWidth = boxWidth
+        state.pagerRoot = boxRoot
+    }
     val edge by remember {
         derivedStateOf {
             val edgePx = with(density) { 32.dp.toPx() }
@@ -167,7 +222,10 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                 .weight(1f)
                 .fillMaxWidth()
                 .onSizeChanged { boxWidth = it.width }
-                .onGloballyPositioned { boxRoot = it.positionInRoot() }
+                .onGloballyPositioned {
+                    boxRoot = it.positionInRoot()
+                    state.pagerRoot = boxRoot
+                }
                 .pointerInput(Unit) {
                     detectTapGestures { pos ->
                         val page = pagerState.currentPage
@@ -231,30 +289,10 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                             if (state.draggingWidget != null) {
                                 change.consume()
                                 state.dragPos = state.dragPos + amount
-                            } else {
-                                val dragged = state.dragging
-                                if (dragged != null) {
-                                    change.consume()
-                                    state.dragPos = state.dragPos + amount
-                                    val cell = cellAt(state.dragPos, size.width)
-                                    val index = state.itemIndexAt(pagerState.currentPage, cell.row, cell.col)
-                                    val target = if (index != null) state.items.getOrNull(index) else null
-                                    if (target != null &&
-                                        state.canMerge(dragged, target) &&
-                                        inCellCenter(state.dragPos, size.width)
-                                    ) {
-                                        state.pendingMove = null
-                                        if (state.hoverKey != target.key) {
-                                            state.hoverKey = target.key
-                                            state.mergeReady = false
-                                        }
-                                    } else {
-                                        state.hoverKey = null
-                                        state.mergeReady = false
-                                        val own = state.indexOfKey(dragged.key)
-                                        state.pendingMove = if (index != null && index != own) index else null
-                                    }
-                                }
+                            } else if (state.dragging != null) {
+                                change.consume()
+                                state.dragPos = state.dragPos + amount
+                                onItemDragMoved(state)
                             }
                         },
                         onDragEnd = {

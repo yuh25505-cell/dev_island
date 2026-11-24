@@ -5,13 +5,17 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import com.island.phone.core.ui.apps.AppId
 import kotlin.math.abs
+
+const val DockCapacity = 4
 
 data class PlacedItem(val item: HomeItem, val row: Int, val col: Int)
 
 class HomeState(initial: List<AppId>) {
     val items = mutableStateListOf<HomeItem>().apply { addAll(initial.map { AppItem(it) }) }
+    val dock = mutableStateListOf<AppId>().apply { addAll(DockApps) }
     val widgets = mutableStateListOf(
         WidgetPlacement(WidgetKind.CLOCK, 0, 0, 0),
         WidgetPlacement(WidgetKind.BATTERY, 0, 2, 2),
@@ -31,6 +35,11 @@ class HomeState(initial: List<AppId>) {
     var mergeReady by mutableStateOf(false)
     var pendingMove by mutableStateOf<Int?>(null)
     var openFolderId by mutableStateOf<Int?>(null)
+    var dockRect: Rect = Rect.Zero
+    var dockSlotPx: Float = 1f
+    var pagerRoot: Offset = Offset.Zero
+    var pagerWidth: Int = 0
+    var pagerPage: Int = 0
     private var nextFolderId = 1
 
     val openFolder: FolderItem?
@@ -45,6 +54,21 @@ class HomeState(initial: List<AppId>) {
 
     private fun indexOfFolder(id: Int): Int =
         items.indexOfFirst { it is FolderItem && it.id == id }
+
+    fun dockSlotAt(rootX: Float, count: Int): Int {
+        if (count <= 0) return 0
+        val left = dockRect.center.x - count * dockSlotPx / 2f
+        return ((rootX - left) / dockSlotPx).toInt().coerceIn(0, count - 1)
+    }
+
+    fun moveInDock(app: AppId, target: Int) {
+        val from = dock.indexOf(app)
+        if (from < 0) return
+        val to = target.coerceIn(0, dock.lastIndex)
+        if (from == to) return
+        dock.removeAt(from)
+        dock.add(to, app)
+    }
 
     fun widgetAt(page: Int, row: Int, col: Int): WidgetPlacement? =
         widgets.firstOrNull {
@@ -175,11 +199,17 @@ class HomeState(initial: List<AppId>) {
         items[i] = folder.copy(name = name.take(FolderNameMax))
     }
 
-    fun restore(savedItems: List<HomeItem>, savedWidgets: List<WidgetPlacement>) {
+    fun restore(
+        savedItems: List<HomeItem>,
+        savedWidgets: List<WidgetPlacement>,
+        savedDock: List<AppId>,
+    ) {
         items.clear()
         items.addAll(savedItems)
         widgets.clear()
         widgets.addAll(savedWidgets)
+        dock.clear()
+        dock.addAll(savedDock)
         nextFolderId = (savedItems.filterIsInstance<FolderItem>().maxOfOrNull { it.id } ?: 0) + 1
     }
 
