@@ -5,6 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import com.island.phone.core.ui.appearance.AppearanceStore
 
 enum class ThemeMode { FOLLOW_SYSTEM, DAY, NIGHT }
 
@@ -53,4 +56,22 @@ fun IslandTheme(mode: ThemeMode, content: @Composable () -> Unit) {
         LocalWidget provides (if (dark) NightWidget else DayWidget),
         content = content
     )
+}
+
+@Composable
+fun IslandDesktopTheme(content: @Composable () -> Unit) {
+    val luma = AppearanceStore.get(LocalContext.current).wallpaperLuma
+    val dark = IslandTheme.dark
+    val base = IslandTheme.icon
+    val tokens = if (luma == null) {
+        base
+    } else {
+        val effective = if (dark) luma * 0.7f else luma
+        if (effective < 0.55f) {
+            base.copy(label = Color.White, labelShadow = Color(0x66000000))
+        } else {
+            base.copy(label = Color(0xFF2B2F38), labelShadow = Color.Transparent)
+        }
+    }
+    CompositionLocalProvider(LocalIcon provides tokens, content = content)
 }

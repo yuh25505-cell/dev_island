@@ -66,19 +66,19 @@ val NightGlass = GlassTokens(
 )
 
 val DayWallpaper = WallpaperTokens(
-    top = Color(0xFFC9D6E8),
-    bottom = Color(0xFFEAE3F0),
-    blobA = Color(0xFFF4B6C2),
-    blobB = Color(0xFF9CC5E8),
-    blobC = Color(0xFFFFE2A8),
+    top = Color(0xFFE4E5E8),
+    bottom = Color(0xFFE4E5E8),
+    blobA = Color(0xFFE4E5E8),
+    blobB = Color(0xFFE4E5E8),
+    blobC = Color(0xFFE4E5E8),
 )
 
 val NightWallpaper = WallpaperTokens(
-    top = Color(0xFF070B16),
-    bottom = Color(0xFF1B2540),
-    blobA = Color(0xFF3B4C9B),
-    blobB = Color(0xFF6A3C8F),
-    blobC = Color(0xFF1E6F7A),
+    top = Color(0xFF2C2D31),
+    bottom = Color(0xFF2C2D31),
+    blobA = Color(0xFF2C2D31),
+    blobB = Color(0xFF2C2D31),
+    blobC = Color(0xFF2C2D31),
 )
 
 val DayIcon = IconTokens(

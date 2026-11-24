@@ -39,10 +39,11 @@ import com.island.phone.core.ui.glass.glassPressable
 import com.island.phone.core.ui.theme.IslandTheme
 
 @Composable
-fun IslandWallpaper(modifier: Modifier = Modifier) {
+fun IslandWallpaper(modifier: Modifier = Modifier, useCustom: Boolean = false) {
     val tokens = IslandTheme.wallpaper
     val dark = IslandTheme.dark
-    val custom = AppearanceStore.get(LocalContext.current).wallpaper
+    val store = AppearanceStore.get(LocalContext.current)
+    val custom = if (useCustom) store.wallpaper else null
     Box(
         modifier = modifier.drawBehind {
             if (custom != null) {

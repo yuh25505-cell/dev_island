@@ -69,7 +69,7 @@ fun AppearancePage(onBack: () -> Unit) {
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 24.dp)
         ) {
-            SectionTitle("壁纸", labelColor)
+            SectionTitle("桌面壁纸", labelColor)
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 GlassSurface(
                     modifier = Modifier
@@ -79,7 +79,7 @@ fun AppearancePage(onBack: () -> Unit) {
                     shape = RoundedCornerShape(28.dp),
                     elevation = 10.dp
                 ) {
-                    IslandWallpaper(modifier = Modifier.fillMaxSize())
+                    IslandWallpaper(modifier = Modifier.fillMaxSize(), useCustom = true)
                 }
             }
             Spacer(Modifier.height(16.dp))

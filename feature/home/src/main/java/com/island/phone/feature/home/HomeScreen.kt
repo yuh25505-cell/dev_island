@@ -20,6 +20,7 @@ import androidx.compose.ui.zIndex
 import com.island.phone.core.ui.glass.LocalBackdrop
 import com.island.phone.core.ui.glass.backdropSource
 import com.island.phone.core.ui.glass.rememberBackdropState
+import com.island.phone.core.ui.theme.IslandDesktopTheme
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
@@ -35,41 +36,43 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         LocalLauncher provides launcher
     ) {
         Box(modifier = modifier.fillMaxSize()) {
-            Wallpaper(modifier = Modifier.fillMaxSize().backdropSource(backdrop))
-            HomePager(
-                state = state,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(if (state.isDraggingAny) 1f else 0f)
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .windowInsetsPadding(WindowInsets.navigationBars)
-                    .padding(top = 48.dp, bottom = 118.dp)
-            )
-            Dock(
-                state = state,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .windowInsetsPadding(WindowInsets.navigationBars)
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-            )
-            if (state.editing) {
-                EditDoneButton(
-                    onClick = { state.editing = false },
+            IslandDesktopTheme {
+                Wallpaper(modifier = Modifier.fillMaxSize().backdropSource(backdrop))
+                HomePager(
+                    state = state,
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .fillMaxSize()
+                        .zIndex(if (state.isDraggingAny) 1f else 0f)
                         .windowInsetsPadding(WindowInsets.statusBars)
-                        .padding(top = 6.dp, end = 16.dp)
+                        .windowInsetsPadding(WindowInsets.navigationBars)
+                        .padding(top = 48.dp, bottom = 118.dp)
                 )
-            }
-            val openFolder = state.openFolder
-            if (openFolder != null) {
-                FolderPopup(folder = openFolder, state = state)
-            }
-            if (state.photoCardOpen) {
-                PhotoCardEditor(state = state)
-            }
-            if (state.vinylOpen) {
-                VinylEditor(state = state)
+                Dock(
+                    state = state,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .windowInsetsPadding(WindowInsets.navigationBars)
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                )
+                if (state.editing) {
+                    EditDoneButton(
+                        onClick = { state.editing = false },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .windowInsetsPadding(WindowInsets.statusBars)
+                            .padding(top = 6.dp, end = 16.dp)
+                    )
+                }
+                val openFolder = state.openFolder
+                if (openFolder != null) {
+                    FolderPopup(folder = openFolder, state = state)
+                }
+                if (state.photoCardOpen) {
+                    PhotoCardEditor(state = state)
+                }
+                if (state.vinylOpen) {
+                    VinylEditor(state = state)
+                }
             }
             AppLauncher(launcher = launcher)
         }

@@ -6,5 +6,5 @@ import com.island.phone.core.ui.shell.IslandWallpaper
 
 @Composable
 fun Wallpaper(modifier: Modifier = Modifier) {
-    IslandWallpaper(modifier)
+    IslandWallpaper(modifier, useCustom = true)
 }

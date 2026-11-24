@@ -20,8 +20,12 @@ import java.io.File
 class AppearanceStore private constructor(context: Context) {
     private val dir: File = context.filesDir
     private val resolver = context.contentResolver
+    private val initialWallpaper: Bitmap? = readBitmap(wallpaperFile())
 
-    var wallpaper by mutableStateOf<ImageBitmap?>(readFile(wallpaperFile()))
+    var wallpaper by mutableStateOf<ImageBitmap?>(initialWallpaper?.asImageBitmap())
+        private set
+
+    var wallpaperLuma by mutableStateOf<Float?>(initialWallpaper?.let { lumaOf(it) })
         private set
 
     private val icons = mutableStateMapOf<AppId, ImageBitmap>()
@@ -47,6 +51,7 @@ class AppearanceStore private constructor(context: Context) {
                 null
             }
         } ?: return false
+        wallpaperLuma = lumaOf(bitmap)
         wallpaper = bitmap.asImageBitmap()
         return true
     }
@@ -83,6 +88,7 @@ class AppearanceStore private constructor(context: Context) {
     fun resetWallpaper() {
         wallpaperFile().delete()
         wallpaper = null
+        wallpaperLuma = null
     }
 
     fun resetIcon(app: AppId) {
@@ -99,12 +105,33 @@ class AppearanceStore private constructor(context: Context) {
 
     private fun iconFile(app: AppId) = File(dir, "appearance_icon_${app.name}.png")
 
-    private fun readFile(file: File): ImageBitmap? {
+    private fun readBitmap(file: File): Bitmap? {
         if (!file.exists()) return null
         return try {
-            BitmapFactory.decodeFile(file.path)?.asImageBitmap()
+            BitmapFactory.decodeFile(file.path)
         } catch (e: Exception) {
             null
+        }
+    }
+
+    private fun readFile(file: File): ImageBitmap? = readBitmap(file)?.asImageBitmap()
+
+    private fun lumaOf(bitmap: Bitmap): Float {
+        return try {
+            val small = Bitmap.createScaledBitmap(bitmap, 16, 16, true)
+            var sum = 0f
+            for (y in 0 until 16) {
+                for (x in 0 until 16) {
+                    val p = small.getPixel(x, y)
+                    val r = (p shr 16) and 0xFF
+                    val g = (p shr 8) and 0xFF
+                    val b = p and 0xFF
+                    sum += (0.299f * r + 0.587f * g + 0.114f * b) / 255f
+                }
+            }
+            sum / 256f
+        } catch (e: Exception) {
+            0.5f
         }
     }
 
