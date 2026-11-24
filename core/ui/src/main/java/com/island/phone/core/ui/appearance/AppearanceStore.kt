@@ -23,8 +23,10 @@ class AppearanceStore private constructor(context: Context) {
     private val prefs = context.getSharedPreferences("appearance_prefs", Context.MODE_PRIVATE)
     private val initialWallpaper: Bitmap? = readBitmap(wallpaperFile())
 
-    var pageAnimation by mutableStateOf(prefs.getBoolean(KeyPageAnimation, true))
-        private set
+    private var pageAnimationState by mutableStateOf(prefs.getBoolean(KeyPageAnimation, true))
+
+    val pageAnimation: Boolean
+        get() = pageAnimationState
 
     var wallpaper by mutableStateOf<ImageBitmap?>(initialWallpaper?.asImageBitmap())
         private set
@@ -44,7 +46,7 @@ class AppearanceStore private constructor(context: Context) {
     fun iconOf(app: AppId): ImageBitmap? = icons[app]
 
     fun setPageAnimation(enabled: Boolean) {
-        pageAnimation = enabled
+        pageAnimationState = enabled
         prefs.edit().putBoolean(KeyPageAnimation, enabled).apply()
     }
 
