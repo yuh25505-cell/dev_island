@@ -67,9 +67,7 @@ private fun path(build: Path.() -> Unit) = Path().apply(build)
 
 private fun DrawScope.paint(path: Path, p: GlyphPalette) {
     val brush = Brush.linearGradient(
-        0f to p.top,
-        0.48f to Color(p.top.value).copy(alpha = 0.96f),
-        1f to p.bottom,
+        colors = listOf(p.top, p.top.copy(alpha = 0.96f), p.bottom),
         start = Offset(size.width * 0.18f, size.height * 0.08f),
         end = Offset(size.width * 0.82f, size.height * 0.94f)
     )
@@ -164,8 +162,6 @@ fun DrawScope.drawPremiumAppGlyph(app: AppId, dark: Boolean) {
             AppId.SHOP -> cut(merge(rect(20f, 38f, 80f, 86f, 12f), path { moveTo(35f, 43f); lineTo(35f, 30f); cubicTo(35f, 10f, 65f, 10f, 65f, 30f); lineTo(65f, 43f); close() }), merge(oval(40f, 58f, 3f), oval(60f, 58f, 3f)))
             AppId.DREAM -> cut(oval(48f, 51f, 32f), oval(63f, 39f, 27f)).let { merge(it, oval(76f, 22f, 4f), oval(23f, 29f, 3f)) }
         }
-        val shadow = glyph.translate(0.8f, 1.8f)
-        drawPath(shadow, Color(0x440D1828))
         paint(glyph, p)
         drawCircle(Color.White.copy(alpha = if (dark) 0.48f else 0.62f), radius = 2.1f, center = Offset(32f, 25f))
     }
