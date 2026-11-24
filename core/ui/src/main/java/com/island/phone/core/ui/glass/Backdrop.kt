@@ -15,13 +15,16 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.island.phone.core.ui.theme.IslandTheme
@@ -30,30 +33,50 @@ class BackdropState internal constructor(
     val raw: GraphicsLayer,
     val blurred: GraphicsLayer,
     val blurSupported: Boolean,
+    internal val settings: GlassSettings,
+    internal val fixedBlur: Dp?,
 ) {
     var origin by mutableStateOf(Offset.Zero)
+
+    private var appliedBlur = -1f
+    private var appliedSaturation = -1f
+
+    internal fun applyEffects(density: Density) {
+        if (!blurSupported) return
+        val fixed = fixedBlur
+        val px = with(density) { if (fixed != null) fixed.toPx() else settings.blur.dp.toPx() }
+        if (px != appliedBlur) {
+            appliedBlur = px
+            blurred.renderEffect = if (px > 0.5f) BlurEffect(px, px, TileMode.Clamp) else null
+        }
+        val saturation = settings.saturation
+        if (saturation != appliedSaturation) {
+            appliedSaturation = saturation
+            blurred.colorFilter = if (saturation == 1f) {
+                null
+            } else {
+                ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(saturation) })
+            }
+        }
+    }
 }
 
 val LocalBackdrop = staticCompositionLocalOf<BackdropState?> { null }
 
 @Composable
-fun rememberBackdropState(blurRadius: Dp = 28.dp): BackdropState {
+fun rememberBackdropState(blurRadius: Dp? = null): BackdropState {
     val raw = rememberGraphicsLayer()
     val blurred = rememberGraphicsLayer()
-    val density = LocalDensity.current
-    return remember(raw, blurred, density, blurRadius) {
-        val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        if (supported) {
-            val px = with(density) { blurRadius.toPx() }
-            blurred.renderEffect = BlurEffect(px, px, TileMode.Clamp)
-        }
-        BackdropState(raw, blurred, supported)
+    val settings = GlassSettings.get(LocalContext.current)
+    return remember(raw, blurred, settings, blurRadius) {
+        BackdropState(raw, blurred, Build.VERSION.SDK_INT >= Build.VERSION_CODES.S, settings, blurRadius)
     }
 }
 
 fun Modifier.backdropSource(state: BackdropState): Modifier = this
     .onGloballyPositioned { state.origin = it.positionInRoot() }
     .drawWithContent {
+        state.applyEffects(this)
         state.raw.record { this@drawWithContent.drawContent() }
         state.blurred.record { drawLayer(state.raw) }
         drawLayer(state.raw)
@@ -62,6 +85,7 @@ fun Modifier.backdropSource(state: BackdropState): Modifier = this
 fun Modifier.backdropRecordOnly(state: BackdropState): Modifier = this
     .onGloballyPositioned { state.origin = it.positionInRoot() }
     .drawWithContent {
+        state.applyEffects(this)
         state.raw.record { this@drawWithContent.drawContent() }
         state.blurred.record { drawLayer(state.raw) }
     }
@@ -69,7 +93,7 @@ fun Modifier.backdropRecordOnly(state: BackdropState): Modifier = this
 @Composable
 fun OwnBackdrop(
     modifier: Modifier = Modifier,
-    blurRadius: Dp = 28.dp,
+    blurRadius: Dp? = null,
     source: @Composable BoxScope.() -> Unit,
     content: @Composable BoxScope.() -> Unit,
 ) {

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -28,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.island.phone.core.ui.icons.AppIconWithLabel
 import com.island.phone.core.ui.icons.FolderIconWithLabel
+import com.island.phone.core.ui.text.BasicText
 import com.island.phone.core.ui.theme.IslandTheme
 import kotlin.math.roundToInt
 

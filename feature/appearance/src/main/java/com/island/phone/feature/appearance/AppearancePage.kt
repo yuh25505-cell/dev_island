@@ -23,6 +23,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.island.phone.core.ui.appearance.AppearanceStore
+import com.island.phone.core.ui.glass.GlassSettings
 import com.island.phone.core.ui.shell.AppShell
 import com.island.phone.core.ui.text.BasicText
 import com.island.phone.core.ui.theme.IslandTheme
@@ -33,11 +34,13 @@ import kotlinx.coroutines.launch
 fun AppearancePage(onBack: () -> Unit) {
     val context = LocalContext.current
     val store = AppearanceStore.get(context)
+    val glass = GlassSettings.get(context)
     val scope = rememberCoroutineScope()
     val labelColor = IslandTheme.icon.label
     var iconsOpen by remember { mutableStateOf(false) }
     var fontsOpen by remember { mutableStateOf(false) }
     var emojiOpen by remember { mutableStateOf(false) }
+    var glassOpen by remember { mutableStateOf(false) }
 
     val pickWallpaper = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) scope.launch { store.importWallpaper(uri) }
@@ -91,6 +94,22 @@ fun AppearancePage(onBack: () -> Unit) {
                         color = labelColor,
                         trailing = { WallpaperThumb(borderColor = labelColor.copy(alpha = 0.15f)) }
                     ) { launchWallpaperPicker() }
+                }
+                Spacer(Modifier.height(16.dp))
+                SettingCard(
+                    title = "玻璃",
+                    titleColor = labelColor,
+                    action = {
+                        MinusButton(
+                            color = labelColor,
+                            enabled = !glass.isDefault
+                        ) { glass.reset() }
+                    }
+                ) {
+                    EntryRow(
+                        title = "液态玻璃",
+                        color = labelColor
+                    ) { glassOpen = true }
                 }
                 Spacer(Modifier.height(16.dp))
                 SettingCard(title = "图标", titleColor = labelColor) {
@@ -161,6 +180,9 @@ fun AppearancePage(onBack: () -> Unit) {
         }
         if (emojiOpen) {
             EmojiSubPage(store = store, onClose = { emojiOpen = false })
+        }
+        if (glassOpen) {
+            GlassSubPage(store = store, onClose = { glassOpen = false })
         }
     }
 }

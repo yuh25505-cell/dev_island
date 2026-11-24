@@ -1,5 +1,6 @@
 package com.island.phone.core.ui.glass
 
+import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,18 +16,26 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.island.phone.core.ui.theme.GlassTokens
 import com.island.phone.core.ui.theme.IslandTheme
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 
 @Composable
 fun GlassSurface(
@@ -37,44 +46,91 @@ fun GlassSurface(
 ) {
     val backdrop = LocalBackdrop.current
     val glass = IslandTheme.glass
+    val settings = GlassSettings.get(LocalContext.current)
+    val lensOn = settings.lensActive &&
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+        backdrop != null && backdrop.blurSupported
+    val lensLayer = if (lensOn) rememberGraphicsLayer() else null
+    val lens = remember { GlassLens() }
     var origin by remember { mutableStateOf(Offset.Zero) }
+    val shadowStrength = settings.shadow
     Box(
         modifier = modifier
-            .shadow(elevation, shape, clip = false, ambientColor = glass.shadow, spotColor = glass.shadow)
+            .shadow(
+                elevation * shadowStrength,
+                shape,
+                clip = false,
+                ambientColor = glass.shadow.scaleAlpha(shadowStrength),
+                spotColor = glass.shadow.scaleAlpha(shadowStrength)
+            )
             .clip(shape)
             .onGloballyPositioned { origin = it.positionInRoot() }
-            .drawBehind { drawGlass(shape, backdrop, origin, glass) },
+            .drawBehind { drawGlass(shape, backdrop, origin, glass, settings, lensLayer, lens) },
         content = content
     )
 }
+
+private fun Color.scaleAlpha(factor: Float): Color = copy(alpha = (alpha * factor).coerceIn(0f, 1f))
 
 private fun DrawScope.drawGlass(
     shape: Shape,
     backdrop: BackdropState?,
     origin: Offset,
     glass: GlassTokens,
+    settings: GlassSettings,
+    lensLayer: GraphicsLayer?,
+    lens: GlassLens,
 ) {
+    if (settings.blur < 0f || settings.saturation < 0f) return
+    val outline = shape.createOutline(size, layoutDirection, this)
+    val edgePx = settings.edge.dp.toPx()
     val blurOn = backdrop != null && backdrop.blurSupported
     if (backdrop != null && blurOn) {
         val delta = origin - backdrop.origin
-        translate(-delta.x, -delta.y) { drawLayer(backdrop.blurred) }
+        if (lensLayer != null) {
+            val w = max(size.width.roundToInt(), 1)
+            val h = max(size.height.roundToInt(), 1)
+            lensLayer.record(this, layoutDirection, IntSize(w, h)) {
+                translate(-delta.x, -delta.y) { drawLayer(backdrop.blurred) }
+            }
+            val half = min(size.width, size.height) / 2f
+            val radius = when (outline) {
+                is Outline.Rounded -> outline.roundRect.topLeftCornerRadius.x
+                is Outline.Rectangle -> 0f
+                is Outline.Generic -> half
+            }.coerceAtMost(half)
+            lens.apply(
+                lensLayer,
+                size.width,
+                size.height,
+                radius,
+                max(edgePx * 6f, 1f),
+                settings.refraction,
+                settings.dispersion,
+                settings.magnify
+            )
+            drawLayer(lensLayer)
+        } else {
+            translate(-delta.x, -delta.y) { drawLayer(backdrop.blurred) }
+        }
     }
-    drawRect(if (blurOn) glass.tint else glass.tintFallback)
+    drawRect((if (blurOn) glass.tint else glass.tintFallback).scaleAlpha(settings.tint))
     drawRect(
         Brush.verticalGradient(
-            colors = listOf(glass.highlight, Color.Transparent),
+            colors = listOf(glass.highlight.scaleAlpha(settings.highlight), Color.Transparent),
             startY = 0f,
             endY = size.height * 0.45f
         )
     )
-    val outline = shape.createOutline(size, layoutDirection, this)
-    val rim = Brush.linearGradient(
-        0f to glass.rimLight,
-        0.3f to glass.rimDark,
-        0.7f to glass.rimDark,
-        1f to glass.rimLight,
-        start = Offset.Zero,
-        end = Offset(size.width, size.height)
-    )
-    drawOutline(outline, rim, style = Stroke(2.dp.toPx()))
+    if (edgePx > 0.05f) {
+        val rim = Brush.linearGradient(
+            0f to glass.rimLight.scaleAlpha(settings.highlight),
+            0.3f to glass.rimDark,
+            0.7f to glass.rimDark,
+            1f to glass.rimLight.scaleAlpha(settings.highlight),
+            start = Offset.Zero,
+            end = Offset(size.width, size.height)
+        )
+        drawOutline(outline, rim, style = Stroke(edgePx))
+    }
 }
