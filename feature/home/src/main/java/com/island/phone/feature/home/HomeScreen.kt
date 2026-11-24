@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.island.phone.core.ui.glass.LocalBackdrop
 import com.island.phone.core.ui.glass.backdropSource
 import com.island.phone.core.ui.glass.rememberBackdropState
@@ -39,13 +40,13 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 state = state,
                 modifier = Modifier
                     .fillMaxSize()
+                    .zIndex(if (state.isDraggingAny) 1f else 0f)
                     .windowInsetsPadding(WindowInsets.statusBars)
                     .windowInsetsPadding(WindowInsets.navigationBars)
                     .padding(top = 48.dp, bottom = 118.dp)
             )
             Dock(
-                apps = DockApps,
-                editing = state.editing,
+                state = state,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .windowInsetsPadding(WindowInsets.navigationBars)

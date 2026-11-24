@@ -7,17 +7,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,17 +30,14 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import com.island.phone.core.ui.apps.AppId
 import com.island.phone.core.ui.icons.AppIcon
-import com.island.phone.core.ui.theme.IslandTheme
+import com.island.phone.core.ui.shell.AppShell
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 
@@ -169,7 +161,7 @@ private fun AppLauncherLayer(app: AppId, launcher: LauncherState) {
                         .requiredSize(areaW, areaH)
                         .graphicsLayer { alpha = smooth((open.value - 0.15f) / 0.5f) }
                 ) {
-                    AppShellPage(app)
+                    AppShellPage(app = app, onBack = { closing = true })
                 }
                 Box(
                     modifier = Modifier
@@ -239,20 +231,10 @@ private fun EdgeStrip(
 }
 
 @Composable
-private fun AppShellPage(app: AppId) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Wallpaper(modifier = Modifier.fillMaxSize())
-        BasicText(
-            text = app.label,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .windowInsetsPadding(WindowInsets.statusBars)
-                .padding(top = 16.dp),
-            style = TextStyle(
-                color = IslandTheme.icon.label,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        )
+private fun AppShellPage(app: AppId, onBack: () -> Unit) {
+    AppShell(title = app.label, onBack = onBack) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            AppIcon(app = app, size = 96.dp)
+        }
     }
 }
