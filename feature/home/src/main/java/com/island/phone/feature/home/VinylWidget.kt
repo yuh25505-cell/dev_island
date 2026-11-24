@@ -3,9 +3,9 @@ package com.island.phone.feature.home
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,12 +34,10 @@ fun VinylWidget(modifier: Modifier = Modifier) {
         elevation = 10.dp
     ) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            val u = maxWidth.value
+            val u = minOf(maxWidth, maxHeight).value
             val record = (u * 0.76f).dp
-            val shift = Modifier
-                .align(Alignment.Center)
-                .offset(y = (u * 0.04f).dp)
-            Canvas(modifier = shift.size(record)) {
+            val center = Modifier.align(Alignment.Center)
+            Canvas(modifier = center.size(record)) {
                 val r = size.width / 2f
                 val c = Offset(r, r)
                 drawCircle(color = label.copy(alpha = 0.08f), radius = r, center = c)
@@ -59,7 +57,7 @@ fun VinylWidget(modifier: Modifier = Modifier) {
                 )
             }
             val cover = store.cover
-            val coverModifier = shift
+            val coverModifier = center
                 .size((u * 0.76f * 0.72f).dp)
                 .clip(CircleShape)
                 .background(label.copy(alpha = 0.22f))
@@ -71,32 +69,41 @@ fun VinylWidget(modifier: Modifier = Modifier) {
                     modifier = coverModifier
                 )
             } else {
-                androidx.compose.foundation.layout.Box(modifier = coverModifier)
+                Box(modifier = coverModifier)
             }
             Canvas(modifier = Modifier.fillMaxSize()) {
-                val w = size.width
-                val pivot = Offset(w * 0.84f, w * 0.17f)
+                val w = minOf(size.width, size.height)
+                val ox = (size.width - w) / 2f
+                val oy = (size.height - w) / 2f
+                val color = label.copy(alpha = 0.9f)
+                val armWidth = w * 0.022f
+                val ringRadius = w * 0.05f
+                val pivot = Offset(ox + w * 0.84f, oy + w * 0.17f)
                 drawCircle(
-                    color = label.copy(alpha = 0.9f),
-                    radius = w * 0.05f,
+                    color = color,
+                    radius = ringRadius,
                     center = pivot,
-                    style = Stroke(width = w * 0.016f)
+                    style = Stroke(width = armWidth)
                 )
-                drawCircle(color = label.copy(alpha = 0.9f), radius = w * 0.027f, center = pivot)
+                drawCircle(color = color, radius = w * 0.027f, center = pivot)
                 val arm = Path().apply {
-                    moveTo(w * 0.84f, w * 0.22f)
-                    lineTo(w * 0.84f, w * 0.62f)
-                    lineTo(w * 0.73f, w * 0.77f)
+                    moveTo(ox + w * 0.84f, oy + w * 0.17f + ringRadius)
+                    lineTo(ox + w * 0.84f, oy + w * 0.575f)
+                    quadraticTo(
+                        ox + w * 0.84f, oy + w * 0.62f,
+                        ox + w * 0.815f, oy + w * 0.654f
+                    )
+                    lineTo(ox + w * 0.73f, oy + w * 0.77f)
                 }
                 drawPath(
                     path = arm,
-                    color = label.copy(alpha = 0.9f),
-                    style = Stroke(width = w * 0.022f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+                    color = color,
+                    style = Stroke(width = armWidth, cap = StrokeCap.Butt, join = StrokeJoin.Round)
                 )
                 drawLine(
-                    color = label.copy(alpha = 0.9f),
-                    start = Offset(w * 0.73f, w * 0.77f),
-                    end = Offset(w * 0.705f, w * 0.805f),
+                    color = color,
+                    start = Offset(ox + w * 0.73f, oy + w * 0.77f),
+                    end = Offset(ox + w * 0.705f, oy + w * 0.805f),
                     strokeWidth = w * 0.045f,
                     cap = StrokeCap.Round
                 )

@@ -21,7 +21,11 @@ import com.island.phone.core.ui.glass.rememberBackdropState
 fun HomeScreen(modifier: Modifier = Modifier) {
     val backdrop = rememberBackdropState()
     val state = remember { HomeState(GridApps) }
-    CompositionLocalProvider(LocalBackdrop provides backdrop) {
+    val launcher = remember { LauncherState() }
+    CompositionLocalProvider(
+        LocalBackdrop provides backdrop,
+        LocalLauncher provides launcher
+    ) {
         Box(modifier = modifier.fillMaxSize()) {
             Wallpaper(modifier = Modifier.fillMaxSize().backdropSource(backdrop))
             HomePager(
@@ -34,6 +38,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             )
             Dock(
                 apps = DockApps,
+                editing = state.editing,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .windowInsetsPadding(WindowInsets.navigationBars)
@@ -58,6 +63,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             if (state.vinylOpen) {
                 VinylEditor(state = state)
             }
+            AppLauncher(launcher = launcher)
         }
     }
 }

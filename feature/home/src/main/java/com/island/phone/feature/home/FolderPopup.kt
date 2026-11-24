@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +65,7 @@ fun FolderPopup(folder: FolderItem, state: HomeState) {
     val tokens = IslandTheme.folder
     val labelColor = IslandTheme.icon.label
     val focus = LocalFocusManager.current
+    val launcher = LocalLauncher.current
     val current by rememberUpdatedState(folder)
 
     var shown by remember { mutableStateOf(false) }
@@ -164,6 +166,27 @@ fun FolderPopup(folder: FolderItem, state: HomeState) {
                         modifier = Modifier
                             .size(FolderCellW * FolderColumns, FolderCellH * rows)
                             .onGloballyPositioned { gridOrigin = it.positionInRoot() }
+                            .pointerInput(Unit) {
+                                detectTapGestures { pos ->
+                                    if (!state.editing) {
+                                        val cw = FolderCellW.toPx()
+                                        val ch = FolderCellH.toPx()
+                                        val col = (pos.x / cw).toInt()
+                                        val row = (pos.y / ch).toInt()
+                                        val app = if (col in 0 until FolderColumns) {
+                                            current.apps.getOrNull(row * FolderColumns + col)
+                                        } else {
+                                            null
+                                        }
+                                        if (app != null) {
+                                            val icon = 60.dp.toPx()
+                                            val left = gridOrigin.x + col * cw + (cw - icon) / 2f
+                                            val top = gridOrigin.y + row * ch
+                                            launcher.open(app, Rect(left, top, left + icon, top + icon))
+                                        }
+                                    }
+                                }
+                            }
                             .pointerInput(Unit) {
                                 detectDragGesturesAfterLongPress(
                                     onDragStart = { pos ->

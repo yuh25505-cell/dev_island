@@ -21,9 +21,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -108,10 +111,12 @@ private fun Density.finishWidgetDrag(state: HomeState, page: Int, width: Int) {
 
 @Composable
 fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
+    val launcher = LocalLauncher.current
     val pageCount = state.pageCount()
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { state.pageCount() })
     val density = LocalDensity.current
     var boxWidth by remember { mutableStateOf(0) }
+    var boxRoot by remember { mutableStateOf(Offset.Zero) }
     val edge by remember {
         derivedStateOf {
             val edgePx = with(density) { 32.dp.toPx() }
@@ -162,6 +167,7 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                 .weight(1f)
                 .fillMaxWidth()
                 .onSizeChanged { boxWidth = it.width }
+                .onGloballyPositioned { boxRoot = it.positionInRoot() }
                 .pointerInput(Unit) {
                     detectTapGestures { pos ->
                         val page = pagerState.currentPage
@@ -177,6 +183,16 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                             val item = if (index != null) state.items.getOrNull(index) else null
                             if (item is FolderItem) {
                                 state.openFolderId = item.id
+                            } else if (item is AppItem && !state.editing) {
+                                val hit = iconCellHit(pos, size.width)
+                                if (hit != null) {
+                                    val cellW = (size.width - 2 * GridPadH.toPx()) / GridColumns
+                                    val stride = (CellHeight + RowGap).toPx()
+                                    val icon = 60.dp.toPx()
+                                    val left = boxRoot.x + GridPadH.toPx() + hit.col * cellW + (cellW - icon) / 2f
+                                    val top = boxRoot.y + GridPadV.toPx() + hit.row * stride
+                                    launcher.open(item.app, Rect(left, top, left + icon, top + icon))
+                                }
                             } else if (state.editing && index != null && item == null) {
                                 state.editing = false
                             }
