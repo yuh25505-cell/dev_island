@@ -165,13 +165,13 @@ fun PhotoCardEditor(state: HomeState) {
                         }
                     }
                     Spacer(Modifier.height(14.dp))
-                    CardField("名字", store.name, 10, false) { store.setName(it) }
+                    CardField("名字", store.name, 10, false) { store.updateName(it) }
                     Spacer(Modifier.height(8.dp))
-                    CardField("话题", store.topic, 8, false) { store.setTopic(it) }
+                    CardField("话题", store.topic, 8, false) { store.updateTopic(it) }
                     Spacer(Modifier.height(8.dp))
-                    CardField("文案", store.body, 40, true) { store.setBody(it) }
+                    CardField("文案", store.body, 40, true) { store.updateBody(it) }
                     Spacer(Modifier.height(8.dp))
-                    CardField("音乐", store.music, 16, false) { store.setMusic(it) }
+                    CardField("音乐", store.music, 16, false) { store.updateMusic(it) }
                     Spacer(Modifier.height(16.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),

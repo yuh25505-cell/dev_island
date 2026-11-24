@@ -36,22 +36,22 @@ class PhotoCardStore private constructor(private val context: Context) {
     var photo by mutableStateOf<ImageBitmap?>(loadImage(PHOTO))
         private set
 
-    fun setName(value: String) {
+    fun updateName(value: String) {
         name = value
         prefs.edit().putString("name", value).apply()
     }
 
-    fun setTopic(value: String) {
+    fun updateTopic(value: String) {
         topic = value
         prefs.edit().putString("topic", value).apply()
     }
 
-    fun setBody(value: String) {
+    fun updateBody(value: String) {
         body = value
         prefs.edit().putString("body", value).apply()
     }
 
-    fun setMusic(value: String) {
+    fun updateMusic(value: String) {
         music = value
         prefs.edit().putString("music", value).apply()
     }
