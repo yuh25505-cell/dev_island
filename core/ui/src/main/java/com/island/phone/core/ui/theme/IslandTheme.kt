@@ -21,6 +21,7 @@ private val LocalWallpaper = staticCompositionLocalOf { DayWallpaper }
 private val LocalIcon = staticCompositionLocalOf { DayIcon }
 private val LocalDots = staticCompositionLocalOf { DayDots }
 private val LocalFolder = staticCompositionLocalOf { DayFolder }
+private val LocalWidget = staticCompositionLocalOf { DayWidget }
 
 object IslandTheme {
     val dark: Boolean
@@ -35,6 +36,8 @@ object IslandTheme {
         @Composable @ReadOnlyComposable get() = LocalDots.current
     val folder: FolderTokens
         @Composable @ReadOnlyComposable get() = LocalFolder.current
+    val widget: WidgetTokens
+        @Composable @ReadOnlyComposable get() = LocalWidget.current
 }
 
 @Composable
@@ -47,6 +50,7 @@ fun IslandTheme(mode: ThemeMode, content: @Composable () -> Unit) {
         LocalIcon provides (if (dark) NightIcon else DayIcon),
         LocalDots provides (if (dark) NightDots else DayDots),
         LocalFolder provides (if (dark) NightFolder else DayFolder),
+        LocalWidget provides (if (dark) NightWidget else DayWidget),
         content = content
     )
 }

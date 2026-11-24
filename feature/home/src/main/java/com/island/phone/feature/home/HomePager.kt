@@ -62,7 +62,7 @@ private fun finishDrag(state: HomeState) {
 @Composable
 fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
     val pages = paginate(state.items.toList())
-    val pagerState = rememberPagerState(pageCount = { pages.size })
+    val pagerState = rememberPagerState(initialPage = 1, pageCount = { pages.size + 1 })
     val density = LocalDensity.current
     var boxWidth by remember { mutableStateOf(0) }
     val edge by remember {
@@ -81,11 +81,11 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
             while (true) {
                 delay(600)
                 val target = pagerState.currentPage + edge
-                if (target < 0 || target >= pagerState.pageCount) break
+                if (target < 1 || target >= pagerState.pageCount) break
                 pagerState.animateScrollToPage(target)
                 val dragged = state.dragging
                 if (dragged != null) {
-                    state.moveTo(dragged.key, density.slotIndex(state.dragPos, boxWidth, pagerState.currentPage))
+                    state.moveTo(dragged.key, density.slotIndex(state.dragPos, boxWidth, pagerState.currentPage - 1))
                 }
             }
         }
@@ -115,25 +115,29 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                 .onSizeChanged { boxWidth = it.width }
                 .pointerInput(Unit) {
                     detectTapGestures { pos ->
-                        val index = slotIndex(pos, size.width, pagerState.currentPage)
-                        val item = state.items.getOrNull(index)
-                        if (item is FolderItem) {
-                            state.openFolderId = item.id
-                        } else if (state.editing && item == null) {
-                            state.editing = false
+                        if (pagerState.currentPage > 0) {
+                            val index = slotIndex(pos, size.width, pagerState.currentPage - 1)
+                            val item = state.items.getOrNull(index)
+                            if (item is FolderItem) {
+                                state.openFolderId = item.id
+                            } else if (state.editing && item == null) {
+                                state.editing = false
+                            }
                         }
                     }
                 }
                 .pointerInput(Unit) {
                     detectDragGesturesAfterLongPress(
                         onDragStart = { pos ->
-                            val index = slotIndex(pos, size.width, pagerState.currentPage)
-                            val item = state.items.getOrNull(index)
-                            if (item != null) {
-                                state.clearDrag()
-                                state.dragging = item
-                                state.dragPos = pos
-                                state.editing = true
+                            if (pagerState.currentPage > 0) {
+                                val index = slotIndex(pos, size.width, pagerState.currentPage - 1)
+                                val item = state.items.getOrNull(index)
+                                if (item != null) {
+                                    state.clearDrag()
+                                    state.dragging = item
+                                    state.dragPos = pos
+                                    state.editing = true
+                                }
                             }
                         },
                         onDrag = { change, amount ->
@@ -141,7 +145,7 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                             if (dragged != null) {
                                 change.consume()
                                 state.dragPos = state.dragPos + amount
-                                val index = slotIndex(state.dragPos, size.width, pagerState.currentPage)
+                                val index = slotIndex(state.dragPos, size.width, pagerState.currentPage - 1)
                                 val target = state.items.getOrNull(index)
                                 if (target != null &&
                                     state.canMerge(dragged, target) &&
@@ -170,7 +174,11 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                 userScrollEnabled = state.dragging == null,
                 modifier = Modifier.fillMaxWidth()
             ) { index ->
-                AppGrid(items = pages[index], state = state)
+                if (index == 0) {
+                    WidgetPage()
+                } else {
+                    AppGrid(items = pages[index - 1], state = state)
+                }
             }
             val dragged = state.dragging
             if (dragged != null) {
@@ -194,7 +202,7 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
             }
         }
         PageDots(
-            count = pages.size,
+            count = pages.size + 1,
             current = pagerState.currentPage,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)

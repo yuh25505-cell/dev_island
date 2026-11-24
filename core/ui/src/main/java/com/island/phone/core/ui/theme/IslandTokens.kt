@@ -40,6 +40,10 @@ data class FolderTokens(
     val miniTile: Color,
 )
 
+data class WidgetTokens(
+    val stickyFill: Color,
+)
+
 val DayGlass = GlassTokens(
     tint = Color(0x33FFFFFF),
     tintFallback = Color(0x66FFFFFF),
@@ -114,4 +118,12 @@ val NightFolder = FolderTokens(
     title = Color(0xFFFFFFFF),
     cursor = Color(0xFFFFFFFF),
     miniTile = Color(0x1FFFFFFF),
+)
+
+val DayWidget = WidgetTokens(
+    stickyFill = Color(0x66FFE08A),
+)
+
+val NightWidget = WidgetTokens(
+    stickyFill = Color(0x40FFD36B),
 )
