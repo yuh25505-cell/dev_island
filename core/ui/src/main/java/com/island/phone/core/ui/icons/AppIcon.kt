@@ -43,6 +43,8 @@ fun AppIcon(app: AppId, modifier: Modifier = Modifier, size: Dp = 60.dp) {
                 .drawBehind {
                     if (custom != null) {
                         drawImageCover(custom)
+                    } else if (app == AppId.CHAT) {
+                        drawChatDefaultIcon()
                     } else {
                         drawRect(tokens.tileTint)
                         drawPremiumAppGlyph(app, dark)
