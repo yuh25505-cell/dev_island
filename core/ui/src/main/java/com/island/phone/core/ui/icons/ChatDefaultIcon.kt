@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
-import com.island.phone.core.ui.apps.AppId
 
 private fun rearChatBubble() = Path().apply {
     moveTo(203f, 104f)
@@ -50,11 +49,7 @@ private fun DrawScope.drawBubble(path: Path, front: Boolean) {
             end = Offset(350f, 420f)
         )
     )
-    drawPath(
-        path,
-        Color(0x1A00A85C),
-        style = Stroke(width = 9f)
-    )
+    drawPath(path, Color(0x1A00A85C), style = Stroke(width = 9f))
     drawPath(
         path,
         Brush.linearGradient(
@@ -64,24 +59,20 @@ private fun DrawScope.drawBubble(path: Path, front: Boolean) {
         ),
         style = Stroke(width = 5f)
     )
-    drawPath(
-        path,
-        Color(0x55FFFFFF),
-        style = Stroke(width = 2f)
-    )
+    drawPath(path, Color(0x55FFFFFF), style = Stroke(width = 2f))
 }
 
 private fun DrawScope.drawChatEye(x: Float, y: Float) {
     drawCircle(Color(0x3000C96A), 25f, Offset(x, y + 2f))
     drawCircle(Color(0x66FFFFFF), 21f, Offset(x, y))
     drawCircle(
-        Brush.radialGradient(
+        brush = Brush.radialGradient(
             colors = listOf(Color(0xFF00D875), Color(0xFF00B95F)),
             center = Offset(x - 4f, y - 5f),
             radius = 25f
         ),
-        18f,
-        Offset(x, y)
+        radius = 18f,
+        center = Offset(x, y)
     )
 }
 
@@ -117,13 +108,5 @@ fun DrawScope.drawChatDefaultIcon() {
         drawBubble(front, true)
         drawChatEye(294f, 275f)
         drawChatEye(370f, 275f)
-    }
-}
-
-fun DrawScope.drawPremiumAppGlyph(app: AppId, dark: Boolean) {
-    if (app == AppId.CHAT) {
-        drawChatDefaultIcon()
-    } else {
-        drawExistingPremiumAppGlyph(app, dark)
     }
 }
