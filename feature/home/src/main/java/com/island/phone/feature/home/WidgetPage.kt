@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -50,6 +49,7 @@ fun WidgetContent(kind: WidgetKind, modifier: Modifier = Modifier) {
         WidgetKind.BATTERY -> BatteryWidget(modifier)
         WidgetKind.WEATHER -> WeatherWidget(modifier)
         WidgetKind.COUNTDOWN -> CountdownWidget(modifier)
+        WidgetKind.PHOTOCARD -> PhotoCardWidget(modifier)
     }
 }
 
@@ -212,20 +212,18 @@ fun BatteryWidget(modifier: Modifier = Modifier) {
 
 @Composable
 fun WeatherWidget(modifier: Modifier = Modifier) {
-    WidgetCard(title = "天气", value = "--°", modifier = modifier)
+    WidgetCard(value = "--°", modifier = modifier)
 }
 
 @Composable
 fun CountdownWidget(modifier: Modifier = Modifier) {
-    WidgetCard(title = "倒数日", value = "--", modifier = modifier)
+    WidgetCard(value = "--", modifier = modifier)
 }
 
 @Composable
 private fun WidgetCard(
-    title: String,
     value: String,
     modifier: Modifier = Modifier,
-    fill: Color = Color.Transparent,
 ) {
     val label = IslandTheme.icon.label
     GlassSurface(
@@ -233,13 +231,12 @@ private fun WidgetCard(
         shape = RoundedCornerShape(28.dp),
         elevation = 10.dp
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+            contentAlignment = Alignment.BottomStart
         ) {
-            BasicText(text = title, style = TextStyle(color = label, fontSize = 13.sp))
             BasicText(text = value, style = TextStyle(color = label, fontSize = 34.sp))
         }
     }

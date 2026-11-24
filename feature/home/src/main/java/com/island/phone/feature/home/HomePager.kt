@@ -164,14 +164,19 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                 .onSizeChanged { boxWidth = it.width }
                 .pointerInput(Unit) {
                     detectTapGestures { pos ->
-                        val cell = cellAt(pos, size.width)
                         val page = pagerState.currentPage
-                        val index = state.itemIndexAt(page, cell.row, cell.col)
-                        val item = if (index != null) state.items.getOrNull(index) else null
-                        if (item is FolderItem) {
-                            state.openFolderId = item.id
-                        } else if (state.editing && index != null && item == null) {
-                            state.editing = false
+                        val tapped = widgetHit(state, page, pos, size.width)
+                        if (tapped != null && tapped.kind == WidgetKind.PHOTOCARD && !state.editing) {
+                            state.photoCardOpen = true
+                        } else {
+                            val cell = cellAt(pos, size.width)
+                            val index = state.itemIndexAt(page, cell.row, cell.col)
+                            val item = if (index != null) state.items.getOrNull(index) else null
+                            if (item is FolderItem) {
+                                state.openFolderId = item.id
+                            } else if (state.editing && index != null && item == null) {
+                                state.editing = false
+                            }
                         }
                     }
                 }
