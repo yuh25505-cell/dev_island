@@ -3,6 +3,7 @@ package com.island.phone.core.ui.icons
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -10,7 +11,6 @@ import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import com.island.phone.core.ui.apps.AppId
@@ -23,176 +23,246 @@ fun DrawScope.drawAppGlyph(app: AppId, color: Color) {
         val c = color
         when (app) {
             AppId.AUTH -> {
-                box(c, 32f, 48f, 68f, 78f, 8f, false)
-                drawArc(c, 180f, 180f, false, Offset(38f, 26f), Size(24f, 30f), style = pen())
-                line(c, 38f, 41f, 38f, 48f)
-                line(c, 62f, 41f, 62f, 48f)
+                stroked(c) {
+                    moveTo(39f, 47f)
+                    lineTo(39f, 38f)
+                    arcTo(Rect(39f, 27f, 61f, 49f), 180f, 180f, false)
+                    lineTo(61f, 47f)
+                }
+                solid(c, roundPath(30f, 46f, 70f, 80f, 10f))
             }
             AppId.CHAT -> {
-                box(c, 22f, 26f, 78f, 64f, 16f, false)
-                shape(c, false) { moveTo(34f, 60f); lineTo(32f, 78f); lineTo(52f, 62f); close() }
+                val tail = Path().apply {
+                    moveTo(30f, 58f)
+                    cubicTo(31f, 70f, 29f, 76f, 22f, 80f)
+                    cubicTo(36f, 80f, 46f, 74f, 54f, 64f)
+                    close()
+                }
+                solid(c, union(roundPath(20f, 24f, 80f, 66f, 18f), tail))
             }
             AppId.APPEARANCE -> {
-                ring(c, 42f, 44f, 18f)
-                ring(c, 58f, 56f, 18f)
+                ring(c, 41f, 43f, 19f)
+                ring(c, 59f, 57f, 19f)
             }
             AppId.GROWTH -> {
-                line(c, 50f, 78f, 50f, 48f, 5f)
-                shape(c, false) {
-                    moveTo(50f, 56f); cubicTo(50f, 40f, 62f, 32f, 74f, 32f)
-                    cubicTo(74f, 46f, 66f, 56f, 50f, 56f); close()
-                }
-                shape(c, false) {
-                    moveTo(50f, 66f); cubicTo(50f, 54f, 40f, 46f, 28f, 46f)
-                    cubicTo(28f, 58f, 36f, 66f, 50f, 66f); close()
-                }
+                line(c, 50f, 82f, 50f, 56f)
+                solid(c, Path().apply {
+                    moveTo(50f, 58f)
+                    cubicTo(50f, 44f, 60f, 33f, 78f, 32f)
+                    cubicTo(79f, 48f, 68f, 59f, 50f, 58f)
+                    close()
+                })
+                solid(c, Path().apply {
+                    moveTo(50f, 68f)
+                    cubicTo(50f, 56f, 40f, 47f, 24f, 46f)
+                    cubicTo(23f, 60f, 34f, 69f, 50f, 68f)
+                    close()
+                })
             }
             AppId.ALBUM -> {
-                val petal = c.copy(alpha = c.alpha * 0.8f)
-                for (i in 0 until 8) {
+                var petals = circlePath(50f + 19f, 50f, 12f)
+                for (i in 1 until 8) {
                     val a = i * PI / 4
-                    disc(petal, 50f + (17 * cos(a)).toFloat(), 50f + (17 * sin(a)).toFloat(), 11f)
+                    petals = Path.combine(
+                        PathOperation.Union,
+                        petals,
+                        circlePath(50f + (19 * cos(a)).toFloat(), 50f + (19 * sin(a)).toFloat(), 12f)
+                    )
                 }
+                val flower = Path.combine(PathOperation.Difference, petals, circlePath(50f, 50f, 6.5f))
+                drawPath(flower, c)
             }
             AppId.CALENDAR -> {
-                box(c, 24f, 28f, 76f, 76f, 10f, true)
-                line(c, 24f, 44f, 76f, 44f)
-                line(c, 38f, 20f, 38f, 32f)
-                line(c, 62f, 20f, 62f, 32f)
-                disc(c, 38f, 60f, 3.5f)
-                disc(c, 50f, 60f, 3.5f)
-                disc(c, 62f, 60f, 3.5f)
+                box(c, 22f, 28f, 78f, 80f, 13f)
+                line(c, 24f, 46f, 76f, 46f)
+                line(c, 37f, 20f, 37f, 34f)
+                line(c, 63f, 20f, 63f, 34f)
+                disc(c, 38f, 63f, 3.6f)
+                disc(c, 50f, 63f, 3.6f)
+                disc(c, 62f, 63f, 3.6f)
             }
             AppId.MEMO -> {
-                box(c, 30f, 22f, 70f, 78f, 8f, true)
-                line(c, 38f, 40f, 62f, 40f)
-                line(c, 38f, 52f, 62f, 52f)
-                line(c, 38f, 64f, 54f, 64f)
+                box(c, 28f, 20f, 72f, 80f, 11f)
+                line(c, 39f, 39f, 61f, 39f)
+                line(c, 39f, 51f, 61f, 51f)
+                line(c, 39f, 63f, 53f, 63f)
             }
             AppId.WEATHER -> {
-                disc(c.copy(alpha = c.alpha * 0.7f), 36f, 38f, 10f)
-                disc(c, 40f, 62f, 13f)
-                disc(c, 57f, 54f, 17f)
-                disc(c, 71f, 64f, 11f)
-                box(c, 32f, 62f, 78f, 75f, 6f, false)
+                disc(c.copy(alpha = c.alpha * 0.7f), 32f, 34f, 9f)
+                val cloud = union(
+                    roundPath(24f, 58f, 84f, 78f, 10f),
+                    circlePath(40f, 61f, 14f),
+                    circlePath(58f, 52f, 18f),
+                    circlePath(72f, 64f, 12f)
+                )
+                drawPath(cloud, c)
             }
             AppId.CLOCK -> {
-                ring(c, 50f, 50f, 27f)
-                line(c, 50f, 50f, 50f, 33f)
-                line(c, 50f, 50f, 62f, 57f)
+                ring(c, 50f, 50f, 29f)
+                stroked(c) {
+                    moveTo(50f, 32f)
+                    lineTo(50f, 50f)
+                    lineTo(63f, 58f)
+                }
             }
             AppId.SETTINGS -> {
-                ring(c, 50f, 50f, 15f)
+                ring(c, 50f, 50f, 14f)
                 for (i in 0 until 8) {
                     val a = i * PI / 4
                     line(
                         c,
-                        50f + (22 * cos(a)).toFloat(), 50f + (22 * sin(a)).toFloat(),
-                        50f + (31 * cos(a)).toFloat(), 50f + (31 * sin(a)).toFloat(),
-                        8f
+                        50f + (24 * cos(a)).toFloat(), 50f + (24 * sin(a)).toFloat(),
+                        50f + (33 * cos(a)).toFloat(), 50f + (33 * sin(a)).toFloat()
                     )
                 }
             }
             AppId.PHONE -> {
-                shape(c, true, 13f) { moveTo(32f, 30f); cubicTo(30f, 52f, 48f, 70f, 70f, 68f) }
+                stroked(c, 12f) {
+                    moveTo(32f, 30f)
+                    cubicTo(30f, 54f, 46f, 70f, 70f, 68f)
+                }
+                disc(c, 32f, 30f, 9f)
+                disc(c, 70f, 68f, 9f)
             }
             AppId.COUNTDOWN -> {
-                shape(c, false) { moveTo(34f, 26f); lineTo(66f, 26f); lineTo(50f, 50f); close() }
-                shape(c, false) { moveTo(50f, 50f); lineTo(66f, 74f); lineTo(34f, 74f); close() }
-                line(c, 30f, 24f, 70f, 24f)
-                line(c, 30f, 76f, 70f, 76f)
+                solid(c, Path().apply {
+                    moveTo(34f, 30f)
+                    lineTo(66f, 30f)
+                    cubicTo(66f, 42f, 56f, 46f, 54f, 50f)
+                    cubicTo(56f, 54f, 66f, 58f, 66f, 70f)
+                    lineTo(34f, 70f)
+                    cubicTo(34f, 58f, 44f, 54f, 46f, 50f)
+                    cubicTo(44f, 46f, 34f, 42f, 34f, 30f)
+                    close()
+                })
+                line(c, 30f, 22f, 70f, 22f)
+                line(c, 30f, 78f, 70f, 78f)
             }
             AppId.WORLDBOOK -> {
-                box(c, 26f, 30f, 74f, 72f, 6f, true)
-                line(c, 50f, 32f, 50f, 72f)
+                box(c, 22f, 28f, 78f, 72f, 11f)
+                line(c, 50f, 30f, 50f, 70f)
             }
             AppId.MUSIC -> {
-                line(c, 58f, 28f, 58f, 64f)
-                disc(c, 48f, 66f, 10f)
-                shape(c, true) { moveTo(58f, 28f); cubicTo(66f, 32f, 72f, 38f, 72f, 50f) }
+                line(c, 55f, 66f, 55f, 28f)
+                disc(c, 44f, 68f, 11f)
+                solid(c, Path().apply {
+                    moveTo(55f, 26f)
+                    cubicTo(60f, 36f, 72f, 38f, 73f, 54f)
+                    cubicTo(66f, 46f, 60f, 44f, 55f, 44f)
+                    close()
+                })
             }
             AppId.MEET -> {
-                shape(c, true) {
-                    moveTo(50f, 78f)
-                    cubicTo(50f, 78f, 30f, 58f, 30f, 44f)
-                    arcTo(Rect(30f, 24f, 70f, 64f), 180f, 180f, false)
-                    cubicTo(70f, 58f, 50f, 78f, 50f, 78f)
-                }
-                ring(c, 50f, 44f, 8f)
-            }
-            AppId.LINK -> {
-                ring(c, 40f, 50f, 17f)
-                ring(c, 60f, 50f, 17f)
-            }
-            AppId.FORUM -> {
-                line(c, 42f, 26f, 38f, 74f)
-                line(c, 62f, 26f, 58f, 74f)
-                line(c, 28f, 40f, 74f, 40f)
-                line(c, 26f, 60f, 72f, 60f)
-            }
-            AppId.NOVEL -> {
-                box(c, 30f, 24f, 70f, 76f, 6f, true)
-                line(c, 40f, 24f, 40f, 76f)
-                line(c, 50f, 38f, 60f, 38f)
-                line(c, 50f, 50f, 60f, 50f)
-            }
-            AppId.COUPLE -> {
-                shape(c, false) {
-                    moveTo(50f, 76f)
-                    cubicTo(18f, 54f, 26f, 26f, 50f, 42f)
-                    cubicTo(74f, 26f, 82f, 54f, 50f, 76f)
+                stroked(c) {
+                    moveTo(50f, 80f)
+                    cubicTo(42f, 72f, 28f, 58f, 28f, 43f)
+                    arcTo(Rect(28f, 21f, 72f, 65f), 180f, 180f, false)
+                    cubicTo(72f, 58f, 58f, 72f, 50f, 80f)
                     close()
                 }
+                ring(c, 50f, 43f, 8f)
+            }
+            AppId.LINK -> {
+                ring(c, 38f, 50f, 18f)
+                ring(c, 62f, 50f, 18f)
+            }
+            AppId.FORUM -> {
+                line(c, 44f, 24f, 38f, 76f)
+                line(c, 64f, 24f, 58f, 76f)
+                line(c, 24f, 39f, 76f, 39f)
+                line(c, 24f, 61f, 76f, 61f)
+            }
+            AppId.NOVEL -> {
+                box(c, 28f, 20f, 72f, 80f, 11f)
+                line(c, 40f, 22f, 40f, 78f)
+                line(c, 51f, 38f, 62f, 38f)
+                line(c, 51f, 50f, 62f, 50f)
+            }
+            AppId.COUPLE -> {
+                solid(c, Path().apply {
+                    moveTo(50f, 82f)
+                    cubicTo(24f, 64f, 16f, 48f, 16f, 36f)
+                    cubicTo(16f, 25f, 24f, 18f, 33f, 18f)
+                    cubicTo(41f, 18f, 47f, 22f, 50f, 29f)
+                    cubicTo(53f, 22f, 59f, 18f, 67f, 18f)
+                    cubicTo(76f, 18f, 84f, 25f, 84f, 36f)
+                    cubicTo(84f, 48f, 76f, 64f, 50f, 82f)
+                    close()
+                }, 4f)
             }
             AppId.PRESET -> {
-                line(c, 28f, 34f, 72f, 34f)
-                line(c, 28f, 50f, 72f, 50f)
-                line(c, 28f, 66f, 72f, 66f)
-                disc(c, 40f, 34f, 8f)
-                disc(c, 60f, 50f, 8f)
-                disc(c, 46f, 66f, 8f)
+                line(c, 24f, 32f, 76f, 32f)
+                line(c, 24f, 50f, 76f, 50f)
+                line(c, 24f, 68f, 76f, 68f)
+                disc(c, 40f, 32f, 9f)
+                disc(c, 60f, 50f, 9f)
+                disc(c, 46f, 68f, 9f)
             }
             AppId.SIDELINE -> {
-                box(c, 24f, 32f, 76f, 68f, 8f, true)
-                shape(c, true) { moveTo(26f, 36f); lineTo(50f, 54f); lineTo(74f, 36f) }
+                box(c, 20f, 28f, 80f, 72f, 11f)
+                stroked(c) {
+                    moveTo(27f, 37f)
+                    lineTo(50f, 55f)
+                    lineTo(73f, 37f)
+                }
             }
             AppId.SHOP -> {
-                box(c, 30f, 40f, 70f, 76f, 8f, true)
-                drawArc(c, 180f, 180f, false, Offset(40f, 26f), Size(20f, 28f), style = pen())
+                box(c, 26f, 38f, 74f, 80f, 11f)
+                stroked(c) {
+                    moveTo(39f, 40f)
+                    lineTo(39f, 32f)
+                    arcTo(Rect(39f, 21f, 61f, 43f), 180f, 180f, false)
+                    lineTo(61f, 40f)
+                }
             }
             AppId.DREAM -> {
                 val moon = Path.combine(
                     PathOperation.Difference,
-                    circlePath(48f, 50f, 24f),
-                    circlePath(60f, 42f, 20f)
+                    circlePath(46f, 52f, 26f),
+                    circlePath(60f, 42f, 21f)
                 )
-                drawPath(moon, c)
-                disc(c, 70f, 30f, 3.5f)
+                solid(c, moon)
+                disc(c, 73f, 27f, 4f)
             }
         }
     }
 }
 
-private fun pen(w: Float = 6f) = Stroke(width = w, cap = StrokeCap.Round, join = StrokeJoin.Round)
+private const val LINE_W = 7f
+
+private fun pen(w: Float = LINE_W) = Stroke(width = w, cap = StrokeCap.Round, join = StrokeJoin.Round)
 
 private fun circlePath(x: Float, y: Float, r: Float) =
     Path().apply { addOval(Rect(Offset(x, y), r)) }
 
-private fun DrawScope.line(c: Color, x1: Float, y1: Float, x2: Float, y2: Float, w: Float = 6f) =
+private fun roundPath(l: Float, t: Float, r: Float, b: Float, rad: Float) =
+    Path().apply { addRoundRect(RoundRect(l, t, r, b, rad, rad)) }
+
+private fun union(vararg parts: Path): Path {
+    var out = parts[0]
+    for (i in 1 until parts.size) {
+        out = Path.combine(PathOperation.Union, out, parts[i])
+    }
+    return out
+}
+
+private fun DrawScope.line(c: Color, x1: Float, y1: Float, x2: Float, y2: Float, w: Float = LINE_W) =
     drawLine(c, Offset(x1, y1), Offset(x2, y2), strokeWidth = w, cap = StrokeCap.Round)
 
-private fun DrawScope.ring(c: Color, x: Float, y: Float, r: Float, w: Float = 6f) =
+private fun DrawScope.ring(c: Color, x: Float, y: Float, r: Float, w: Float = LINE_W) =
     drawCircle(c, r, Offset(x, y), style = pen(w))
 
 private fun DrawScope.disc(c: Color, x: Float, y: Float, r: Float) =
     drawCircle(c, r, Offset(x, y))
 
 private fun DrawScope.box(
-    c: Color, l: Float, t: Float, r: Float, b: Float, rad: Float, stroke: Boolean,
-) = drawRoundRect(
-    c, Offset(l, t), Size(r - l, b - t), CornerRadius(rad),
-    style = if (stroke) pen() else Fill
-)
+    c: Color, l: Float, t: Float, r: Float, b: Float, rad: Float,
+) = drawRoundRect(c, Offset(l, t), Size(r - l, b - t), CornerRadius(rad), style = pen())
 
-private fun DrawScope.shape(c: Color, stroke: Boolean, w: Float = 6f, build: Path.() -> Unit) =
-    drawPath(Path().apply(build), c, style = if (stroke) pen(w) else Fill)
+private fun DrawScope.stroked(c: Color, w: Float = LINE_W, build: Path.() -> Unit) =
+    drawPath(Path().apply(build), c, style = pen(w))
+
+private fun DrawScope.solid(c: Color, path: Path, edge: Float = 3f) {
+    drawPath(path, c)
+    drawPath(path, c, style = pen(edge))
+}
