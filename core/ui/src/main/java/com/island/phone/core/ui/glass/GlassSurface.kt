@@ -62,15 +62,17 @@ private fun DrawScope.drawGlass(
         Brush.verticalGradient(
             colors = listOf(glass.highlight, Color.Transparent),
             startY = 0f,
-            endY = size.height * 0.55f
+            endY = size.height * 0.45f
         )
     )
     val outline = shape.createOutline(size, layoutDirection, this)
     val rim = Brush.linearGradient(
-        colors = listOf(glass.rimLight, glass.rimDark, glass.rimLight),
+        0f to glass.rimLight,
+        0.3f to glass.rimDark,
+        0.7f to glass.rimDark,
+        1f to glass.rimLight,
         start = Offset.Zero,
         end = Offset(size.width, size.height)
     )
-    drawOutline(outline, rim, alpha = 0.35f, style = Stroke(10.dp.toPx()))
     drawOutline(outline, rim, style = Stroke(2.dp.toPx()))
 }
