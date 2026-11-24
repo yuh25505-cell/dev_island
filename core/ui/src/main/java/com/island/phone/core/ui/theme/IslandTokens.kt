@@ -41,7 +41,10 @@ data class FolderTokens(
 )
 
 data class WidgetTokens(
-    val stickyFill: Color,
+    val clockText: Color,
+    val ringGreen: Color,
+    val ringRed: Color,
+    val ringTrack: Color,
 )
 
 val DayGlass = GlassTokens(
@@ -121,9 +124,15 @@ val NightFolder = FolderTokens(
 )
 
 val DayWidget = WidgetTokens(
-    stickyFill = Color(0x66FFE08A),
+    clockText = Color(0xD9505763),
+    ringGreen = Color(0xFF34C759),
+    ringRed = Color(0xFFFF3B30),
+    ringTrack = Color(0x26000000),
 )
 
 val NightWidget = WidgetTokens(
-    stickyFill = Color(0x40FFD36B),
+    clockText = Color(0xE6FFFFFF),
+    ringGreen = Color(0xFF30D158),
+    ringRed = Color(0xFFFF453A),
+    ringTrack = Color(0x40FFFFFF),
 )

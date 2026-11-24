@@ -6,11 +6,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import com.island.phone.core.ui.apps.AppId
+import kotlin.math.abs
+
+data class PlacedItem(val item: HomeItem, val row: Int, val col: Int)
 
 class HomeState(initial: List<AppId>) {
     val items = mutableStateListOf<HomeItem>().apply { addAll(initial.map { AppItem(it) }) }
+    val widgets = mutableStateListOf(
+        WidgetPlacement(WidgetKind.CLOCK, 0, 0, 0),
+        WidgetPlacement(WidgetKind.BATTERY, 0, 2, 2),
+        WidgetPlacement(WidgetKind.WEATHER, 1, 0, 0),
+        WidgetPlacement(WidgetKind.COUNTDOWN, 1, 2, 2),
+    )
     var editing by mutableStateOf(false)
     var dragging by mutableStateOf<HomeItem?>(null)
+    var draggingWidget by mutableStateOf<WidgetKind?>(null)
+    var widgetGrab by mutableStateOf(Offset.Zero)
     var dragPos by mutableStateOf(Offset.Zero)
     var hoverKey by mutableStateOf<String?>(null)
     var mergeReady by mutableStateOf(false)
@@ -21,12 +32,94 @@ class HomeState(initial: List<AppId>) {
     val openFolder: FolderItem?
         get() = items.firstOrNull { it is FolderItem && it.id == openFolderId } as? FolderItem
 
+    val isDraggingAny: Boolean
+        get() = dragging != null || draggingWidget != null
+
     fun isDragging(item: HomeItem): Boolean = dragging?.key == item.key
 
     fun indexOfKey(key: String): Int = items.indexOfFirst { it.key == key }
 
     private fun indexOfFolder(id: Int): Int =
         items.indexOfFirst { it is FolderItem && it.id == id }
+
+    fun widgetAt(page: Int, row: Int, col: Int): WidgetPlacement? =
+        widgets.firstOrNull {
+            it.page == page &&
+                row >= it.row && row < it.row + it.kind.rows &&
+                col >= it.col && col < it.col + it.kind.cols
+        }
+
+    private fun freeCount(page: Int): Int =
+        GridRows * GridColumns -
+            widgets.filter { it.page == page }.sumOf { it.kind.cols * it.kind.rows }
+
+    fun pageCount(): Int {
+        val lastWidgetPage = widgets.maxOfOrNull { it.page } ?: 0
+        var total = 0
+        var p = 0
+        while (true) {
+            total += freeCount(p)
+            if (total >= items.size && p >= lastWidgetPage) return p + 1
+            p++
+        }
+    }
+
+    private fun ordinalOf(page: Int, row: Int, col: Int): Int {
+        var n = 0
+        for (p in 0 until page) n += freeCount(p)
+        for (r in 0 until GridRows) {
+            for (c in 0 until GridColumns) {
+                if (r == row && c == col) return n
+                if (widgetAt(page, r, c) == null) n++
+            }
+        }
+        return n
+    }
+
+    fun itemIndexAt(page: Int, row: Int, col: Int): Int? =
+        if (widgetAt(page, row, col) != null) null else ordinalOf(page, row, col)
+
+    fun placedOn(page: Int): List<PlacedItem> {
+        var k = 0
+        for (p in 0 until page) k += freeCount(p)
+        val out = mutableListOf<PlacedItem>()
+        for (r in 0 until GridRows) {
+            for (c in 0 until GridColumns) {
+                if (widgetAt(page, r, c) == null) {
+                    val entry = items.getOrNull(k)
+                    if (entry != null) out.add(PlacedItem(entry, r, c))
+                    k++
+                }
+            }
+        }
+        return out
+    }
+
+    private fun widgetFits(kind: WidgetKind, page: Int, row: Int, col: Int): Boolean =
+        widgets.none {
+            it.kind != kind && it.page == page &&
+                row < it.row + it.kind.rows && row + kind.rows > it.row &&
+                col < it.col + it.kind.cols && col + kind.cols > it.col
+        }
+
+    fun dropWidget(kind: WidgetKind, page: Int, row: Int, col: Int) {
+        val cur = widgets.indexOfFirst { it.kind == kind }
+        if (cur < 0) return
+        var best: WidgetPlacement? = null
+        var bestDist = Int.MAX_VALUE
+        for (r in 0..(GridRows - kind.rows)) {
+            for (c in 0..(GridColumns - kind.cols)) {
+                if (!widgetFits(kind, page, r, c)) continue
+                val d = abs(r - row) + abs(c - col)
+                if (d < bestDist) {
+                    bestDist = d
+                    best = WidgetPlacement(kind, page, r, c)
+                }
+            }
+        }
+        val target = best
+        if (target != null) widgets[cur] = target
+    }
 
     fun moveTo(key: String, target: Int) {
         val from = indexOfKey(key)
@@ -39,6 +132,7 @@ class HomeState(initial: List<AppId>) {
 
     fun clearDrag() {
         dragging = null
+        draggingWidget = null
         hoverKey = null
         mergeReady = false
         pendingMove = null
