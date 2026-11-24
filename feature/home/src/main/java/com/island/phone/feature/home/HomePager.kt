@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private data class Cell(val row: Int, val col: Int)
@@ -42,6 +43,32 @@ private fun Density.cellAt(pos: Offset, width: Int): Cell {
     val row = ((pos.y - padV) / rowH).toInt().coerceIn(0, GridRows - 1)
     return Cell(row, col)
 }
+
+private fun Density.iconCellHit(pos: Offset, width: Int): Cell? {
+    val padH = GridPadH.toPx()
+    val padV = GridPadV.toPx()
+    val cellW = (width - 2 * padH) / GridColumns
+    val stride = (CellHeight + RowGap).toPx()
+    val x = pos.x - padH
+    val y = pos.y - padV
+    if (x < 0f || y < 0f) return null
+    val col = (x / cellW).toInt()
+    val row = (y / stride).toInt()
+    if (col >= GridColumns || row >= GridRows) return null
+    val insideX = abs(x - (col + 0.5f) * cellW) <= 36.dp.toPx()
+    val insideY = y - row * stride <= CellHeight.toPx()
+    return if (insideX && insideY) Cell(row, col) else null
+}
+
+private fun Density.widgetHit(state: HomeState, page: Int, pos: Offset, width: Int): WidgetPlacement? =
+    state.widgets.firstOrNull {
+        if (it.page != page) {
+            false
+        } else {
+            val r = widgetRect(it.kind, it.row, it.col, width)
+            pos.x >= r.x && pos.x <= r.x + r.w && pos.y >= r.y && pos.y <= r.y + r.h
+        }
+    }
 
 private fun Density.inCellCenter(pos: Offset, width: Int): Boolean {
     val padH = GridPadH.toPx()
@@ -152,8 +179,7 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                     detectDragGesturesAfterLongPress(
                         onDragStart = { pos ->
                             val page = pagerState.currentPage
-                            val cell = cellAt(pos, size.width)
-                            val widget = state.widgetAt(page, cell.row, cell.col)
+                            val widget = widgetHit(state, page, pos, size.width)
                             if (widget != null) {
                                 state.clearDrag()
                                 val rect = widgetRect(widget.kind, widget.row, widget.col, size.width)
@@ -162,7 +188,12 @@ fun HomePager(state: HomeState, modifier: Modifier = Modifier) {
                                 state.dragPos = pos
                                 state.editing = true
                             } else {
-                                val index = state.itemIndexAt(page, cell.row, cell.col)
+                                val cell = iconCellHit(pos, size.width)
+                                val index = if (cell != null) {
+                                    state.itemIndexAt(page, cell.row, cell.col)
+                                } else {
+                                    null
+                                }
                                 val item = if (index != null) state.items.getOrNull(index) else null
                                 if (item != null) {
                                     state.clearDrag()

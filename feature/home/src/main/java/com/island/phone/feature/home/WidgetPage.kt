@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -119,79 +118,93 @@ fun BatteryWidget(modifier: Modifier = Modifier) {
         shape = RoundedCornerShape(28.dp),
         elevation = 10.dp
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(14.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Box(modifier = Modifier.size(76.dp), contentAlignment = Alignment.Center) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    val stroke = 8.dp.toPx()
-                    val arcSize = Size(size.width - stroke, size.height - stroke)
-                    val topLeft = Offset(stroke / 2f, stroke / 2f)
-                    drawArc(
-                        color = tokens.ringTrack,
-                        startAngle = 0f,
-                        sweepAngle = 360f,
-                        useCenter = false,
-                        topLeft = topLeft,
-                        size = arcSize,
-                        style = Stroke(width = stroke)
-                    )
-                    drawArc(
-                        color = ringColor,
-                        startAngle = -90f,
-                        sweepAngle = 360f * level / 100f,
-                        useCenter = false,
-                        topLeft = topLeft,
-                        size = arcSize,
-                        style = Stroke(width = stroke, cap = StrokeCap.Round)
-                    )
-                }
-                Canvas(modifier = Modifier.size(16.dp, 28.dp)) {
-                    val sw = 2.2.dp.toPx()
-                    drawRoundRect(
-                        color = label,
-                        topLeft = Offset(sw / 2f, sw / 2f),
-                        size = Size(size.width - sw, size.height - sw),
-                        cornerRadius = CornerRadius(4.dp.toPx()),
-                        style = Stroke(width = sw)
-                    )
-                    drawRoundRect(
-                        color = label,
-                        topLeft = Offset(size.width * 0.34f, size.height * 0.1f),
-                        size = Size(size.width * 0.32f, 2.dp.toPx()),
-                        cornerRadius = CornerRadius(1.dp.toPx())
-                    )
-                }
-            }
-            Spacer(Modifier.height(6.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (charging) {
-                    Canvas(modifier = Modifier.size(10.dp, 14.dp)) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val unit = maxWidth.value
+            val ringSize = (unit * 0.4f).dp
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding((unit * 0.09f).dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Box(modifier = Modifier.size(ringSize), contentAlignment = Alignment.Center) {
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        val stroke = size.width * 0.11f
+                        val arcSize = Size(size.width - stroke, size.height - stroke)
+                        val topLeft = Offset(stroke / 2f, stroke / 2f)
+                        drawArc(
+                            color = tokens.ringTrack,
+                            startAngle = 0f,
+                            sweepAngle = 360f,
+                            useCenter = false,
+                            topLeft = topLeft,
+                            size = arcSize,
+                            style = Stroke(width = stroke)
+                        )
+                        drawArc(
+                            color = ringColor,
+                            startAngle = -90f,
+                            sweepAngle = 360f * level / 100f,
+                            useCenter = false,
+                            topLeft = topLeft,
+                            size = arcSize,
+                            style = Stroke(width = stroke, cap = StrokeCap.Round)
+                        )
+                    }
+                    Canvas(modifier = Modifier.size((ringSize.value * 0.27f).dp, (ringSize.value * 0.46f).dp)) {
                         val w = size.width
                         val h = size.height
-                        val bolt = Path().apply {
-                            moveTo(w * 0.6f, 0f)
-                            lineTo(0f, h * 0.58f)
-                            lineTo(w * 0.46f, h * 0.58f)
-                            lineTo(w * 0.36f, h)
-                            lineTo(w, h * 0.38f)
-                            lineTo(w * 0.54f, h * 0.38f)
-                            close()
-                        }
-                        drawPath(bolt, tokens.ringGreen)
+                        val sw = w * 0.1f
+                        drawRoundRect(
+                            color = label,
+                            topLeft = Offset(sw / 2f, sw / 2f),
+                            size = Size(w - sw, h - sw),
+                            cornerRadius = CornerRadius(w * 0.3f),
+                            style = Stroke(width = sw)
+                        )
+                        drawRoundRect(
+                            color = label,
+                            topLeft = Offset(w * 0.34f, sw * 1.7f),
+                            size = Size(w * 0.32f, sw),
+                            cornerRadius = CornerRadius(sw / 2f)
+                        )
+                        drawRoundRect(
+                            color = label,
+                            topLeft = Offset(w * 0.3f, h - sw * 2.7f),
+                            size = Size(w * 0.4f, sw),
+                            cornerRadius = CornerRadius(sw / 2f)
+                        )
                     }
-                    Spacer(Modifier.width(3.dp))
                 }
-                BasicText(
-                    text = "$level%",
-                    style = TextStyle(
-                        color = label,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (charging) {
+                        Canvas(modifier = Modifier.size((unit * 0.07f).dp, (unit * 0.1f).dp)) {
+                            val w = size.width
+                            val h = size.height
+                            val bolt = Path().apply {
+                                moveTo(w * 0.6f, 0f)
+                                lineTo(0f, h * 0.58f)
+                                lineTo(w * 0.46f, h * 0.58f)
+                                lineTo(w * 0.36f, h)
+                                lineTo(w, h * 0.38f)
+                                lineTo(w * 0.54f, h * 0.38f)
+                                close()
+                            }
+                            drawPath(bolt, tokens.ringGreen)
+                        }
+                        Spacer(Modifier.width(3.dp))
+                    }
+                    BasicText(
+                        text = "$level%",
+                        maxLines = 1,
+                        style = TextStyle(
+                            color = label,
+                            fontSize = (unit * 0.25f).sp,
+                            fontWeight = FontWeight.Normal
+                        )
                     )
-                )
+                }
             }
         }
     }
